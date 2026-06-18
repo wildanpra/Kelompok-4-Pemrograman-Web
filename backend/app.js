@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const router = require("./routes/api");
 const db = require("./config/database");
@@ -26,6 +27,8 @@ app.get("/test-db", async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log("Server berjalan di port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server berjalan di port ${PORT}`);
 });
