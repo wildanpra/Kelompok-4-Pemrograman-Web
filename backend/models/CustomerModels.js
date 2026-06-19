@@ -38,8 +38,7 @@ const update = async (id, {name, email, phone, company, status}) => {
             email = ?,
             phone = ?,
             company = ?,
-            status = ?,
-            updated_at = CURRENT_TIMESTAMP
+            status = ?
         WHERE id = ?
     `,
     [name ?? null, email ?? null, phone ?? null, company ?? null, status ?? null, id]
