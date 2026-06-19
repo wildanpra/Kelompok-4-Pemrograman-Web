@@ -15,4 +15,50 @@ const findById = async (id) => {
   return rows[0] ?? null;
 };
 
-module.exports = { findAll, findById };
+//memasukkan create
+const store = async ({customer_id, name, email, phone, position}) => {
+  const query =
+    `INSERT INTO contacts (customer_id, name, email, phone, position) 
+    VALUES (?, ?, ?, ?, ?)`;
+  const [result] = await db.query(query, [
+    customer_id,
+    name,
+    email ?? null,
+    phone ?? null,
+    position ?? null
+  ]);
+      return result.insertId;
+};
+
+const update = async (id, {customer_id, name, email, phone, position}) =>{
+  const [{affectedRows}] = await db.query(`
+          UPDATE contacts 
+          SET customer_id = ?,
+              name = ?,
+              email = ?,
+              phone = ?,
+              position = ?
+          WHERE id = ?
+      `,
+      [customer_id, name, email ?? null, phone ?? null, position ?? null, id]
+      );
+      return affectedRows;
+};
+
+const destroy = async (id) =>{
+  const [{affectedRows}] = await db.query(`
+          DELETE FROM contacts WHERE id = ?
+      `,
+      [id]
+      );
+      return affectedRows;
+};
+
+module.exports = {
+  findAll,
+  findById,
+  store,
+  update,
+  destroy
+};
+ 

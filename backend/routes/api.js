@@ -5,7 +5,7 @@ const CustomerController = require("../controllers/CustomerController");
 const DealController = require("../controllers/DealController");
 const UsersController = require("../controllers/UsersController");
 const LeadController = require("../controllers/LeadController");
-const Activitiesontroller = require("../controllers/ActivitiesController");
+const ActivitiesController = require("../controllers/ActivitiesController");
 const ContactsController = require("../controllers/ContactController");
 const DashboardController = require("../controllers/DashboardController");
 
@@ -30,8 +30,11 @@ router.put("/contacts/:id", ContactsController.update);
 router.delete("/contacts/:id", ContactsController.destroy);
 
 //Routing Activities
-router.get("/activities", Activitiesontroller.index);
-router.get("/activities/:id", Activitiesontroller.show);
+router.get("/activities", ActivitiesController.index);
+router.get("/activities/:id", ActivitiesController.show);
+router.post("/activities", ActivitiesController.store);
+router.put("/activities/:id", ActivitiesController.update);
+router.delete("/activities/:id", ActivitiesController.destroy);
 
 //Routing Contacts
 router.get("/contacts", ContactsController.index);

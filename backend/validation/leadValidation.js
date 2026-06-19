@@ -1,4 +1,4 @@
-const LEAD_STATUS = ['new', 'contacted', 'qualified', 'lost'];
+const LEAD_STATUS = ['New', 'Contacted', 'Qualified', 'Lost'];
 const validateId = (id) => {
   if (!id || isNaN(id)) return "ID harus berupa angka";
   return null;

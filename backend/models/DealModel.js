@@ -41,7 +41,7 @@ const updateStageByLeadId = async (leadId, stage, value = null) =>{
     `
     UPDATE deals SET stage=?, value=? WHERE lead_id =?
     `,
-    [stage ??null, value, leadId]
+    [stage ?? null, value, leadId]
   );
 };
 

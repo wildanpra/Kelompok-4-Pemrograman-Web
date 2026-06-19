@@ -1,4 +1,6 @@
+const db = require('../config/database');
 const CustomerModels = require('../models/CustomerModels');
+const ActivitiesModel = require('../models/ActivitiesModel');
 const { validateId, validateStore, validateUpdate } = require('../validation/customerValidation');
 
 
@@ -60,7 +62,7 @@ class CustomerController {
     async store(req, res, next){
         // res.send("Menambahkan data");
         try{
-            const {name, email, phone, company, status} = req.body;
+            const {name, email, phone, company, status, created_by} = req.body;
             const errors = validateStore(name, email, phone, company, status);
             if(errors){
                 return res.status(400).json({
@@ -68,20 +70,48 @@ class CustomerController {
                     status: "error"
                 });
             }
-            const customer = await CustomerModels.store({
+
+            await db.beginTransaction();
+
+            const customerId = await CustomerModels.store({
                 name,
                 email,
                 phone,
                 company,
                 status,
-                created_by: req.user?.id
+                created_by: req.user?.id || created_by
             });
+
+            // Tambah Activity otomatis secara internal dengan tipe 'Note'
+            const today = new Date().toISOString().slice(0, 10);
+            await ActivitiesModel.store({
+                customer_id: customerId,
+                type: 'Note',
+                description: `Customer baru '${name}' berhasil didaftarkan.`,
+                activity_date: today,
+                created_by: req.user?.id || created_by
+            });
+
+            await db.commit();
+
             res.status(201).json({
-                message: "Data Customer berhasil ditambahkan",
+                message: "Data Customer dan aktivitas awal berhasil ditambahkan",
                 status: "success",
-                data: customer
+                data: {
+                    id: customerId,
+                    name,
+                    email,
+                    phone,
+                    company,
+                    status
+                }
             });
         }catch(error){
+            try {
+                await db.rollback();
+            } catch (rollbackErr) {
+                // ignore
+            }
             next(error);
         }
     }
@@ -123,6 +153,7 @@ class CustomerController {
             next(error);
         }
     }
+
     async destroy(req, res, next){
         try{
             const {id} = req.params;
