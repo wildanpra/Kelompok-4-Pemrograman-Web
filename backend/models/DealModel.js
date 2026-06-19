@@ -36,4 +36,17 @@ const createFormLead = async (leadId, title, stage) => {
   return insertId;
 };
 
-module.exports = { findAll, findById, createFormLead };
+const updateStageByLeadId = async (leadId, stage, value = null) =>{
+  await db.query(
+    `
+    UPDATE deals SET stage=?, value=? WHERE lead_id =?
+    `,
+    [stage ??null, value, leadId]
+  );
+};
+
+const removeByLeadId = async (leadId) =>{
+  await db.query(`DELETE FROM deals WHERE lead_id = ?`, [leadId])
+};
+
+module.exports = { findAll, findById, createFormLead, updateStageByLeadId, removeByLeadId };

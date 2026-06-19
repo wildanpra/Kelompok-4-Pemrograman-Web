@@ -41,4 +41,30 @@ const store = async ({customer_id, title, source, notes, status, assigned_to}) =
     return result.insertId;
 };
 
-module.exports = { findAll, findById, store };
+const update = async (id, {customer_id, title, source, notes, status, assigned_to}) => {
+  const [{affectedRows}] = await db.query(`
+  UPDATE leads
+  SET customer_id = ?, title = ?, source = ?, notes = ?, status = ?, assigned_to = ?
+  WHERE id = ?`,
+  [
+        customer_id,
+        title,
+        source ?? null,
+        notes ?? null,
+        status ?? 'new',
+        assigned_to ?? null,
+    ]);
+return affectedRows;
+};
+
+const destroy = async(id) =>{
+  const [{affectedRows}] = await db.query(`
+    DELETE FROM leads
+    WHERE id = ?
+  `,
+  [id]
+);
+return affectedRows;
+};
+
+module.exports = { findAll, findById, store, update, destroy };
