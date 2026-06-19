@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const router = require("./routes/api");
 const db = require("./config/database");
+const errorHandler = require("./middleware/errorHandler");
+
 
 const app = express()
 
@@ -26,6 +28,9 @@ app.get("/test-db", async (req, res) => {
         });
     }
 });
+
+//Middleware Error
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,5 +1,7 @@
 const CustomerModels = require('../models/CustomerModels');
-const { validateId } = require('../validation/customerValidation');
+const { validateId, validateStore, validateUpdate } = require('../validation/customerValidation');
+
+
 
 class CustomerController {
     async index(req, res) {
@@ -55,16 +57,100 @@ class CustomerController {
         // res.json(data);
         // res.send("menampilkan data customers");
 
-    store(req, res){
-        res.send("Menambahkan data");
+    async store(req, res, next){
+        // res.send("Menambahkan data");
+        try{
+            const {name, email, phone, company, status} = req.body;
+            const errors = validateStore(name, email, phone, company, status);
+            if(errors){
+                return res.status(400).json({
+                    message: errors,
+                    status: "error"
+                });
+            }
+            const customer = await CustomerModels.store({
+                name,
+                email,
+                phone,
+                company,
+                status,
+                created_by: req.user?.id
+            });
+            res.status(201).json({
+                message: "Data Customer berhasil ditambahkan",
+                status: "success",
+                data: customer
+            });
+        }catch(error){
+            next(error);
+        }
     }
-    update(req,res){
-        const {id} = req.params;
-        res.send(`Mengupdate data customer dengan ID ${id}`);
+    async update(req, res, next){
+        try{
+            const {id} = req.params;
+            const idError = validateId(id);
+            if(idError){
+                return res.status(400).json({
+                    message: idError,
+                    status: "error"
+                });
+            }
+
+            const {name, email, phone, company, status} = req.body;
+            const errors = validateUpdate(name, email, phone, company, status);
+            if(errors){
+                return res.status(400).json({
+                    message: errors,
+                    status: "error"
+                });
+            }
+
+            const existing = await CustomerModels.findById(id);
+            if(!existing){
+                return res.status(404).json({
+                    message: "Data Customer tidak ditemukan",
+                    status: "error"
+                });
+            }
+
+            await CustomerModels.update(id, {name, email, phone, company, status});
+
+            res.json({
+                message: "Data Customer berhasil diupdate",
+                status: "success"
+            });
+        }catch(error){
+            next(error);
+        }
     }
-    delete(req,res){
-        const {id} = req.params;
-        res.send(`Menghapus data customer dengan ID ${id}`);
+    async delete(req, res, next){
+        try{
+            const {id} = req.params;
+            const idError = validateId(id);
+            if(idError){
+                return res.status(400).json({
+                    message: idError,
+                    status: "error"
+                });
+            }
+
+            const existing = await CustomerModels.findById(id);
+            if(!existing){
+                return res.status(404).json({
+                    message: "Data Customer tidak ditemukan",
+                    status: "error"
+                });
+            }
+
+            await CustomerModels.destroy(id);
+
+            res.json({
+                message: "Data Customer berhasil dihapus",
+                status: "success"
+            });
+        }catch(error){
+            next(error);
+        }
     }
 }
 

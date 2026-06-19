@@ -20,7 +20,46 @@ const findById = async (id) => {
     }
 }
 
+//menambahkan data customers
+const store = async({name, email, phone, company, status, created_by}) =>{ // parameter sesuaikan dengan kolom yang ada di table
+    const [{insertId}] = await db.query(
+    `INSERT INTO customers (name, email, phone, company, status, created_by )
+    VALUES (?, ?, ?, ?, ?, ?)
+    `,
+    [name, email ?? null, phone ?? null, company ?? null, status ?? null, created_by ?? null]
+    );
+    return insertId;
+}
+
+const update = async (id, {name, email, phone, company, status}) => {
+    const [{affectedRows}] = await db.query(`
+        UPDATE customers 
+        SET name = ?,
+            email = ?,
+            phone = ?,
+            company = ?,
+            status = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    `,
+    [name ?? null, email ?? null, phone ?? null, company ?? null, status ?? null, id]
+    );
+    return affectedRows;
+}
+
+const destroy = async (id) => {
+    const [{affectedRows}] = await db.query(`
+        DELETE FROM customers WHERE id = ?
+    `,
+    [id]
+    );
+    return affectedRows;
+}
+
 module.exports = {
     findAll,
-    findById
+    findById,
+    store,
+    update,
+    destroy
 }
