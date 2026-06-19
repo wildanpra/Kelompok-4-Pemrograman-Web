@@ -26,6 +26,11 @@ router.get("/activities/:id", Activitiesontroller.show);
 router.get("/contacts", ContactsController.index);
 router.get("/contacts/:id", ContactsController.show);
 
+//Routing Leads
+router.get("/leads", LeadController.index);
+router.get("/leads/:id", LeadController.show);
+router.post("/leads", LeadController.store);
+
 //Routing deals
 router.get("/deals", DealController.index);
 router.get("/deals/:id", DealController.show);
