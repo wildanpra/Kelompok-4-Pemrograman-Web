@@ -7,11 +7,17 @@ const UsersController = require("../controllers/UsersController");
 const LeadController = require("../controllers/LeadController");
 const Activitiesontroller = require("../controllers/ActivitiesController");
 const ContactsController = require("../controllers/ContactController");
+const DashboardController = require("../controllers/DashboardController");
+
+
 
 //Endpoint untuk mengakses halaman utama
 router.get("/", (req, res) => {
   res.send("Hello express!");
 });
+
+router.get("/dashboard", DashboardController.index);
+
 router.get("/customers", CustomerController.index);
 router.get("/customers/:id", CustomerController.show);
 router.post("/customers", CustomerController.store);
@@ -30,6 +36,8 @@ router.get("/contacts/:id", ContactsController.show);
 router.get("/leads", LeadController.index);
 router.get("/leads/:id", LeadController.show);
 router.post("/leads", LeadController.store);
+router.put("/leads/:id", LeadController.update);
+router.delete("/leads/:id", LeadController.destroy);
 
 //Routing deals
 router.get("/deals", DealController.index);

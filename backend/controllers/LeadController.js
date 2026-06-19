@@ -45,7 +45,7 @@ class LeadController {
           const errors = validateStore(customer_id, title, status);
           if(errors) return res.status(400).json({success:false, errors});
           
-          const dealStage = STAGE_MAP[(status || 'new').toLowerCase()];
+          const dealStage = STAGE_MAP[(status || 'New')];
 
           await db.beginTransaction();
 
@@ -65,7 +65,7 @@ class LeadController {
             success: true,
             message: "Lead berhasil ditambah dan deal otomatis bertambah",
             data: { 
-              lead : {id: leadId, title, status: status || 'new'},
+              lead : {id: leadId, title, status: status || 'New'},
               deal : {id: dealId, stage: dealStage}
             },
           });
@@ -73,18 +73,91 @@ class LeadController {
           try {
               await db.rollback();
           } catch (rollbackErr) {
-              // ignore rollback error
           }
           res.status(500).json({success: false, message: err.message});
     }
   }
-  update(req, res) {
-    const { id } = req.params;
-    res.send(`Mengupdate data id ${id}`);
+  
+  
+  async update(req, res, next) {
+    try {
+      const {id} = req.params;
+      const idError = validateId(id);
+      if(idError){
+        return res.status(400).json({success: false, message: idError});
+      }
+      
+      const { customer_id, title, source, notes, status, assigned_to, deal_value } = req.body;
+      const errors =  validateUpdate(customer_id, title, status);
+      if(errors) return res.status(400).json({success:false, errors});
+      
+      const dealStage = STAGE_MAP[(status || 'New')];
+
+      await db.beginTransaction();
+
+      const affected = await LeadModel.update(id, {
+          customer_id,
+          title,
+          source,
+          notes,
+          status,
+          assigned_to
+      });
+      if(!affected) {
+        try {
+            await db.rollback();
+        } catch (rollbackErr) {
+        }
+        return res.status(404).json({success:false, message:'Lead tidak ditemukan'});
+      }
+
+      await DealModel.updateStageByLeadId(id, dealStage, deal_value ?? null);
+      
+      await db.commit();
+
+      res.json({
+        success: true,
+        message: "Lead diupdate, stage deal ikut berubah",
+        data: {lead_status: status, deal_stage: dealStage, deal_value: deal_value ?? null}
+      });
+    } catch (err) {
+        try {
+            await db.rollback();
+        } catch (rollbackErr) {
+        }
+        next(err);
+    }
   }
-  delete(req, res) {
-    const { id } = req.params;
-    res.send(`Menghapus data id ${id}`);
+
+
+  async destroy(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const idError = validateId(id);
+      if (idError) return res.status(400).json({ success: false, message: idError });
+
+      await db.beginTransaction();
+
+      await DealModel.removeByLeadId(id); // hapus deals dulu (FK constraint)
+      const affected = await LeadModel.destroy(id);
+
+      if (!affected) {
+        try {
+            await db.rollback();
+        } catch (rollbackErr) {}
+        return res.status(404).json({ success: false, message: 'Lead tidak ditemukan' });
+      }
+
+      await db.commit();
+
+      res.json({ success: true, message: 'Lead dan deals terkait berhasil dihapus' });
+    } catch (err) {
+      try {
+          await db.rollback();
+      } catch (rollbackErr) {}
+      next(err);
+    }
   }
 }
 const object = new LeadController();

@@ -35,7 +35,7 @@ const store = async ({customer_id, title, source, notes, status, assigned_to}) =
         title,
         source ?? null,
         notes ?? null,
-        status ?? 'new',
+        status ?? 'New',
         assigned_to ?? null,
     ]);
     return result.insertId;
@@ -51,8 +51,9 @@ const update = async (id, {customer_id, title, source, notes, status, assigned_t
         title,
         source ?? null,
         notes ?? null,
-        status ?? 'new',
+        status ?? 'New',
         assigned_to ?? null,
+        id,
     ]);
 return affectedRows;
 };
