@@ -16,7 +16,7 @@ router.get("/customers", CustomerController.index);
 router.get("/customers/:id", CustomerController.show);
 router.post("/customers", CustomerController.store);
 router.put("/customers/:id", CustomerController.update);
-router.delete("/customers/:id", CustomerController.delete);
+router.delete("/customers/:id", CustomerController.destroy);
 
 //Routing Activities
 router.get("/activities", Activitiesontroller.index);

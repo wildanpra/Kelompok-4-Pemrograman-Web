@@ -123,7 +123,7 @@ class CustomerController {
             next(error);
         }
     }
-    async delete(req, res, next){
+    async destroy(req, res, next){
         try{
             const {id} = req.params;
             const idError = validateId(id);
