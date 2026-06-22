@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Belajar HTML Dasar</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- SEMANTIC: NAVIGASI -->
-    <header>
+    <header class="flex-between">
         <h1>CRM Latihan</h1>
         <nav>
             <a href="#form">Form</a> |
@@ -14,7 +15,7 @@
             <a href="#table">Table</a>
         </nav>
     </header>
-    <main>
+    <main class="container">
         <!-- SEMANTIC: SECTION -->
         <section id="form">
             <h2>Tambah Customer</h2>
@@ -71,13 +72,13 @@
                         <td>1</td>
                         <td>PT Maju Jaya</td>
                         <td>info@majujaya.com</td>
-                        <td>Active</td>
+                        <td class="badge-active">Active</td>
                     </tr>
                     <tr>
                         <td>2</td>
                         <td>CV Kreatif</td>
                         <td>hello@kreatif.com</td>
-                        <td>Inactive</td>
+                        <td class="badge-inactive">Inactive</td>
                     </tr>
                 </tbody>
             </table>
