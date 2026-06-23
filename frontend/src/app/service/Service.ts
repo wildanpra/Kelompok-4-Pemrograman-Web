@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Customer } from '../models/Customer';
 import { Contact } from '../models/Contact';
+import { User } from '../models/User';
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
@@ -51,5 +52,31 @@ export class ContactService {
 
   getContacts(): Contact[] {
     return this.contacts;
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private users: User[] = [
+    {
+      id: 2,
+      name: 'Siti Rahma',
+      email: 'siti.rahma@mail.com',
+      password: 'secure_password_456',
+      role: 'staff',
+      created_at: '2026-02-20T10:15:30.000Z',
+    },
+    {
+      id: 3,
+      name: 'Andi Wijaya',
+      email: 'andi.wijaya@mail.com',
+      password: 'sales_secret_789',
+      role: 'sales',
+      created_at: '2026-03-05T14:22:10.000Z',
+    },
+  ];
+
+  getUsers(): User[] {
+    return this.users;
   }
 }
