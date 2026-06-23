@@ -1,0 +1,28 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Contact</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>customer_id</th>
+          <th>type</th>
+          <th>description</th>
+          <th>activity_date</th>
+          <th>created_by</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let a of activities">
+          <td>{{ a.customer_id }}</td>
+          <td>{{ a.type }}</td>
+          <td>{{ a.description }}</td>
+          <td>{{ a.activity_date }}</td>
+          <td>{{ a.created_by }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->
+

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Customer } from '../models/Customer';
 import { Contact } from '../models/Contact';
 import { User } from '../models/User';
+import { Activities } from '../models/Activities';
+
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
@@ -78,5 +80,31 @@ export class UserService {
 
   getUsers(): User[] {
     return this.users;
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class ActivitiesService {
+  private activities: Activities[] = [
+    {
+      id: 5,
+      customer_id: 5,
+      type: 'xxx',
+      description: 'yyy',
+      activity_date: '24-03-2026',
+      created_by: 1,
+    },
+    {
+      id: 6,
+      customer_id: 6,
+      type: 'xxx',
+      description: 'yyy',
+      activity_date: '24-03-2026',
+      created_by: 1,
+    },
+  ];
+
+  getActivities(): Activities[] {
+    return this.activities;
   }
 }
