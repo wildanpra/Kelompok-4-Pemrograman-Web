@@ -1,0 +1,27 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Contact</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>customer_id</th>
+          <th>name</th>
+          <th>email</th>
+          <th>phone</th>
+          <th>position</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let c of contacts">
+          <td>{{ c.customer_id }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.phone }}</td>
+          <td>{{ c.position }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->
