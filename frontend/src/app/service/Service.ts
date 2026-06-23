@@ -1,0 +1,82 @@
+import { Injectable } from '@angular/core';
+import { Customer } from '../models/Customer';
+import { Contact } from '../models/Contact';
+import { User } from '../models/User';
+
+@Injectable({ providedIn: 'root' })
+export class CustomerService {
+  private customers: Customer[] = [
+    {
+      id: 1,
+      name: 'Budi Santoso',
+      email: 'budi@mail.com',
+      phone: '08123',
+      company: 'PT ABC',
+      status: 'Active',
+    },
+    {
+      id: 2,
+      name: 'Siti Aminah',
+      email: 'siti@mail.com',
+      phone: '08124',
+      company: 'PT XYZ',
+      status: 'Inactive',
+    },
+  ];
+
+  getCustomers(): Customer[] {
+    return this.customers;
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class ContactService {
+  private contacts: Contact[] = [
+    {
+      id: 1,
+      customer_id: 1,
+      name: 'Budi Santoso',
+      email: 'budi@mail.com',
+      phone: '08123',
+      position: 'Active',
+    },
+    {
+      id: 2,
+      customer_id: 2,
+      name: 'Siti Aminah',
+      email: 'siti@mail.com',
+      phone: '08124',
+      position: 'Inactive',
+    },
+  ];
+
+  getContacts(): Contact[] {
+    return this.contacts;
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private users: User[] = [
+    {
+      id: 2,
+      name: 'Siti Rahma',
+      email: 'siti.rahma@mail.com',
+      password: 'secure_password_456',
+      role: 'staff',
+      created_at: '2026-02-20T10:15:30.000Z',
+    },
+    {
+      id: 3,
+      name: 'Andi Wijaya',
+      email: 'andi.wijaya@mail.com',
+      password: 'sales_secret_789',
+      role: 'sales',
+      created_at: '2026-03-05T14:22:10.000Z',
+    },
+  ];
+
+  getUsers(): User[] {
+    return this.users;
+  }
+}

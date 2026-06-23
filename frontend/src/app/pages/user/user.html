@@ -1,0 +1,29 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Users</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>name</th>
+          <th>email</th>
+          <th>password</th>
+          <th>role</th>
+          <th>created_at</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let c of users; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.password }}</td>
+          <td>{{ c.role }}</td>
+          <td>{{ c.created_at }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->

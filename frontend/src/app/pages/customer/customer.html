@@ -1,0 +1,27 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Customers</h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>email</th>
+          <th>phone</th>
+          <th>company</th>
+          <th>status</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let c of customers">
+          <td>{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.phone }}</td>
+          <td>{{ c.company }}</td>
+          <td>{{ c.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->

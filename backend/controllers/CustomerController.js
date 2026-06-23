@@ -1,5 +1,9 @@
+const db = require('../config/database');
 const CustomerModels = require('../models/CustomerModels');
-const { validateId } = require('../validation/customerValidation');
+const ActivitiesModel = require('../models/ActivitiesModel');
+const { validateId, validateStore, validateUpdate } = require('../validation/customerValidation');
+
+
 
 class CustomerController {
     async index(req, res) {
@@ -55,16 +59,129 @@ class CustomerController {
         // res.json(data);
         // res.send("menampilkan data customers");
 
-    store(req, res){
-        res.send("Menambahkan data");
+    async store(req, res, next){
+        // res.send("Menambahkan data");
+        try{
+            const {name, email, phone, company, status, created_by} = req.body;
+            const errors = validateStore(name, email, phone, company, status);
+            if(errors){
+                return res.status(400).json({
+                    message: errors,
+                    status: "error"
+                });
+            }
+
+            await db.beginTransaction();
+
+            const customerId = await CustomerModels.store({
+                name,
+                email,
+                phone,
+                company,
+                status,
+                created_by: req.user?.id || created_by
+            });
+
+            // Tambah Activity otomatis secara internal dengan tipe 'Note'
+            const today = new Date().toISOString().slice(0, 10);
+            await ActivitiesModel.store({
+                customer_id: customerId,
+                type: 'Note',
+                description: `Customer baru '${name}' berhasil didaftarkan.`,
+                activity_date: today,
+                created_by: req.user?.id || created_by
+            });
+
+            await db.commit();
+
+            res.status(201).json({
+                message: "Data Customer dan aktivitas awal berhasil ditambahkan",
+                status: "success",
+                data: {
+                    id: customerId,
+                    name,
+                    email,
+                    phone,
+                    company,
+                    status
+                }
+            });
+        }catch(error){
+            try {
+                await db.rollback();
+            } catch (rollbackErr) {
+                // ignore
+            }
+            next(error);
+        }
     }
-    update(req,res){
-        const {id} = req.params;
-        res.send(`Mengupdate data customer dengan ID ${id}`);
+    async update(req, res, next){
+        try{
+            const {id} = req.params;
+            const idError = validateId(id);
+            if(idError){
+                return res.status(400).json({
+                    message: idError,
+                    status: "error"
+                });
+            }
+
+            const {name, email, phone, company, status} = req.body;
+            const errors = validateUpdate(name, email, phone, company, status);
+            if(errors){
+                return res.status(400).json({
+                    message: errors,
+                    status: "error"
+                });
+            }
+
+            const existing = await CustomerModels.findById(id);
+            if(!existing){
+                return res.status(404).json({
+                    message: "Data Customer tidak ditemukan",
+                    status: "error"
+                });
+            }
+
+            await CustomerModels.update(id, {name, email, phone, company, status});
+
+            res.json({
+                message: "Data Customer berhasil diupdate",
+                status: "success"
+            });
+        }catch(error){
+            next(error);
+        }
     }
-    delete(req,res){
-        const {id} = req.params;
-        res.send(`Menghapus data customer dengan ID ${id}`);
+
+    async destroy(req, res, next){
+        try{
+            const {id} = req.params;
+            const idError = validateId(id);
+            if(idError){
+                return res.status(400).json({
+                    message: idError,
+                    status: "error"
+                });
+            }
+
+            const existing = await CustomerModels.findById(id);
+            if(!existing){
+                return res.status(404).json({
+                    message: "Data Customer tidak ditemukan",
+                    status: "error"
+                });
+            }
+
+            await CustomerModels.destroy(id);
+
+            res.json({
+                message: "Data Customer berhasil dihapus",
+                status: "success"
+            });
+        }catch(error){
+            next(error);
+        }
     }
 }
 
