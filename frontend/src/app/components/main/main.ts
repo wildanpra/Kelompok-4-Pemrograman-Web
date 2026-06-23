@@ -25,8 +25,7 @@ import { RouterOutlet } from '@angular/router';
           <div class="content-wrapper">
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <!-- <router-outlet></router-outlet> -->
-              <app-customer></app-customer>
+              <router-outlet></router-outlet>
             </div>
 
             <!-- Footer -->
