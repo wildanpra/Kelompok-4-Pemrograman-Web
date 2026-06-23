@@ -25,8 +25,19 @@
               },
               "src/assets"
             ],
-            "styles": [
-              "src/styles.css"
+            "styles": ["src/styles.css"],
+            "scripts": [
+              "src/assets/vendor/libs/jquery/jquery.js",
+              "src/assets/vendor/libs/popper/popper.js",
+              "src/assets/vendor/js/bootstrap.js",
+              "src/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js",
+              "src/assets/vendor/js/menu.js",
+              "src/assets/vendor/js/helpers.js",
+              "src/assets/js/config.js",
+              "src/assets/js/main.js",
+              "src/assets/js/dashboards-analytics.js",
+              "src/assets/js/extended-ui-perfect-scrollbar.js",
+              "src/assets/js/ui-popover.js"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",
