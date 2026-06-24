@@ -8,6 +8,8 @@ import {
   AfterViewChecked,
 } from '@angular/core';
 import { ActivitiesService } from '../../service/activities_services';
+import { CustomerService } from '../../service/customer_services';
+import { Customer } from '../../models/Customer';
 import { Activities } from '../../models/Activities';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -22,6 +24,7 @@ import { Router } from '@angular/router';
 export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChecked {
   view: 'list' | 'create' = 'list';
   activities: Activities[] = [];
+  customer: Customer[] = [];
   isLoading: boolean = false;
   isSaving: boolean = false;
   errorMessage: string | null = null;
@@ -46,6 +49,7 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
 
   constructor(
     private ActivitiesService: ActivitiesService,
+    private CustomerService: CustomerService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
@@ -64,6 +68,7 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadActivities();
+      this.loadCustomers();
     } else {
       this.isLoading = false;
     }
@@ -84,6 +89,20 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
       error: (err) => {
         this.errorMessage = 'Gagal memuat data';
         this.isLoading = false;
+      },
+    });
+  }
+
+  loadCustomers(): void {
+    this.CustomerService.getAll().subscribe({
+      next: (res) => {
+        this.customer = res.data;
+        if (this.customer.length && !this.createForm.get('customer_id')?.value) {
+          this.createForm.patchValue({ customer_id: this.customer[0].id });
+        }
+      },
+      error: (err) => {
+        console.error(err);
       },
     });
   }

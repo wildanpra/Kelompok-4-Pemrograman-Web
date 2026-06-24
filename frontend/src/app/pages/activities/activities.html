@@ -48,20 +48,22 @@
         <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Customer ID <span class="text-danger">*</span></label>
-              <input
-                type="number"
-                class="form-control"
-                formControlName="customer_id"
-                placeholder="ID customer"
-              />
+              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="customer_id">
+                <option value="" disabled selected>-- Pilih Customer --</option>
+
+                <option *ngFor="let customers of customer" [value]="customers.id">
+                  {{ customers.name }}
+                </option>
+              </select>
+
               <div
                 *ngIf="
-                  createForm.get('customer_id')?.invalid && createForm.get('customerId')?.touched
+                  createForm.get('customer_id')?.invalid && createForm.get('customer_id')?.touched
                 "
                 class="text-danger small mt-1"
               >
-                Customer ID wajib diisi
+                Customer wajib dipilih
               </div>
             </div>
 
