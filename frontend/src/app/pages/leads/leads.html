@@ -5,6 +5,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th>No</th>
           <th>ID</th>
           <th>Customer ID</th>
           <th>Title</th>
@@ -16,7 +17,8 @@
         </tr>
       </thead>
       <tbody class="table-border-bottom-0">
-        <tr *ngFor="let lead of leads">
+        <tr *ngFor="let lead of leads; let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ lead.id }}</td>
           <td>{{ lead.customer_id }}</td>
           <td>{{ lead.title }}</td>

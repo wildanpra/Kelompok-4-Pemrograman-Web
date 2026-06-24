@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BaseService } from './Service';
-import { Activities } from '../models/Activities';
-import { ApiResponse } from '../models/Customer';
+import { Activities, ApiResponse } from '../models/Activities';
 
 @Injectable({ providedIn: 'root' })
 export class ActivitiesService extends BaseService {
@@ -16,5 +15,12 @@ export class ActivitiesService extends BaseService {
     return this.http
       .get<ApiResponse<Activities[]>>(`${this.apiUrl}/activities`, { headers: this.getHeaders() })
       .pipe(catchError((err) => this.handleError(err)));
+  }
+  create(data: Partial<Activities>): Observable<ApiResponse<{ id: number }>> {
+    return this.http
+      .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/activities`, data, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
   }
 }

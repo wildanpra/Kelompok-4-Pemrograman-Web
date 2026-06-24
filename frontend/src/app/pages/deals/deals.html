@@ -6,6 +6,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th>No</th>
           <th>ID</th>
           <th>Lead ID</th>
           <th>Title</th>
@@ -16,7 +17,8 @@
         </tr>
       </thead>
       <tbody class="table-border-bottom-0">
-        <tr *ngFor="let deal of deals">
+        <tr *ngFor="let deal of deals; let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ deal.id }}</td>
           <td>{{ deal.lead_id }}</td>
           <td>{{ deal.title }}</td>

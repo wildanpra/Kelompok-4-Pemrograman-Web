@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BaseService } from './Service';
-import { Lead } from '../models/Lead';
-import { ApiResponse } from '../models/Customer';
+import { Lead, ApiResponse } from '../models/Lead';
 
 @Injectable({ providedIn: 'root' })
 export class LeadService extends BaseService {

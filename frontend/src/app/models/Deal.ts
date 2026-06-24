@@ -7,3 +7,10 @@ export interface Deal {
   closed_at?: string;
   created_at: string;
 }
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  total?: number;
+  data: T;
+}
