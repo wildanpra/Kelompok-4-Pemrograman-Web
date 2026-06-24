@@ -1,33 +1,32 @@
-import { Injectable } from '@angular/core';
-import { Customer } from '../models/Customer';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Contact } from '../models/Contact';
 import { User } from '../models/User';
 import { Activities } from '../models/Activities';
-
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
+import { Observable, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-export class CustomerService {
-  private customers: Customer[] = [
-    {
-      id: 1,
-      name: 'Budi Santoso',
-      email: 'budi@mail.com',
-      phone: '08123',
-      company: 'PT ABC',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      name: 'Siti Aminah',
-      email: 'siti@mail.com',
-      phone: '08124',
-      company: 'PT XYZ',
-      status: 'Inactive',
-    },
-  ];
+export class BaseService {
+  protected apiUrl = 'http://localhost:3000';
+  constructor(
+    protected http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {}
 
-  getCustomers(): Customer[] {
-    return this.customers;
+  protected getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({ 'Content-type': 'application/json' });
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers = headers.set('Authorization', `Bearer ${token}`);
+      }
+    }
+    return headers;
+  }
+  protected handleError(error: any): Observable<never> {
+    console.log('API Error:', error);
+    return throwError(() => error);
   }
 }
 
