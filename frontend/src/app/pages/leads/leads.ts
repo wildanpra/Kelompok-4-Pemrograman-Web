@@ -1,6 +1,6 @@
 import { Component, OnInit, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { LeadService } from '../../service/lead.service';
+import { LeadService } from '../../service/lead_services';
 import { Lead } from '../../models/Lead';
 
 @Component({

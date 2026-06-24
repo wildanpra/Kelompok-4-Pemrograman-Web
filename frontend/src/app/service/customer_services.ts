@@ -17,4 +17,12 @@ export class CustomerService extends BaseService {
       .get<ApiResponse<Customer[]>>(`${this.apiUrl}/customers`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
+
+  create(data: Partial<Customer>): Observable<ApiResponse<{ id: number }>> {
+    return this.http
+      .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/customers`, data, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }

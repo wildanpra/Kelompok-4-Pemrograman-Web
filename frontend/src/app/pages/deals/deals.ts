@@ -1,6 +1,6 @@
 import { Component, OnInit, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { DealService } from '../../service/deal.service';
+import { DealService } from '../../service/deal_services';
 import { Deal } from '../../models/Deal';
 
 @Component({
