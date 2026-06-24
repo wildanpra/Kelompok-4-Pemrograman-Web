@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BaseService } from './Service';
-import { Deal } from '../models/Deal';
-import { ApiResponse } from '../models/Customer';
+import { Deal, ApiResponse } from '../models/Deal';
 
 @Injectable({ providedIn: 'root' })
 export class DealService extends BaseService {
