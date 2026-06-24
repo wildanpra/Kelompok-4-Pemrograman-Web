@@ -1,7 +1,7 @@
 <!-- Basic Bootstrap Table -->
 <div class="card">
   <h5 class="card-header">Table Leads</h5>
-  <div *ngIf="!isLoading && !errorMessage" class="table-responsive text-nowrap">
+  <div class="table-responsive text-nowrap">
     <table class="table">
       <thead>
         <tr>
@@ -22,11 +22,9 @@
           <td>{{ lead.title }}</td>
           <td>{{ lead.source }}</td>
           <td>{{ lead.notes }}</td>
-          <td>
-            <span class="badge bg-label-primary">{{ lead.status }}</span>
-          </td>
+          <td>{{ lead.status }}</td>
           <td>{{ lead.assigned_to }}</td>
-          <td>{{ lead.created_at | date: 'short' }}</td>
+          <td>{{ lead.created_at }}</td>
         </tr>
       </tbody>
     </table>

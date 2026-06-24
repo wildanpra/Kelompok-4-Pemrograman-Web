@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LeadService } from '../../service/lead.service';
 import { Lead } from '../../models/Lead';
@@ -8,7 +8,6 @@ import { Lead } from '../../models/Lead';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './leads.html',
-  styleUrl: './leads.css',
 })
 export class LeadsComponent implements OnInit {
   leads: Lead[] = [];
@@ -17,7 +16,8 @@ export class LeadsComponent implements OnInit {
 
   constructor(
     private leadService: LeadService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +32,7 @@ export class LeadsComponent implements OnInit {
       next: (res) => {
         this.leads = res.data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.errorMessage = 'gagal memuat data';

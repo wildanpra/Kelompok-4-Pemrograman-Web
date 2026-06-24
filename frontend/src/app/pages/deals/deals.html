@@ -2,7 +2,7 @@
 <div class="card">
   <h5 class="card-header">Table Deals</h5>
 
-  <div *ngIf="!isLoading && !errorMessage" class="table-responsive text-nowrap">
+  <div class="table-responsive text-nowrap">
     <table class="table">
       <thead>
         <tr>
@@ -20,12 +20,10 @@
           <td>{{ deal.id }}</td>
           <td>{{ deal.lead_id }}</td>
           <td>{{ deal.title }}</td>
-          <td>{{ deal.value | currency: 'IDR' : 'symbol' : '1.0-0' }}</td>
-          <td>
-            <span class="badge bg-label-info">{{ deal.stage }}</span>
-          </td>
-          <td>{{ deal.closed_at ? (deal.closed_at | date: 'short') : '-' }}</td>
-          <td>{{ deal.created_at | date: 'short' }}</td>
+          <td>{{ deal.value }}</td>
+          <td>{{ deal.stage }}</td>
+          <td>{{ deal.closed_at }}</td>
+          <td>{{ deal.created_at }}</td>
         </tr>
       </tbody>
     </table>

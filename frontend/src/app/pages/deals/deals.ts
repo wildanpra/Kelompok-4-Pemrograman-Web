@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { DealService } from '../../service/deal.service';
 import { Deal } from '../../models/Deal';
@@ -8,7 +8,6 @@ import { Deal } from '../../models/Deal';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './deals.html',
-  styleUrl: './deals.css',
 })
 export class DealsComponent implements OnInit {
   deals: Deal[] = [];
@@ -17,7 +16,8 @@ export class DealsComponent implements OnInit {
 
   constructor(
     private dealService: DealService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +32,7 @@ export class DealsComponent implements OnInit {
       next: (res) => {
         this.deals = res.data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.errorMessage = 'gagal memuat data';
