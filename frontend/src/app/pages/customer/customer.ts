@@ -16,7 +16,7 @@ export class CustomerComponent implements OnInit {
 
   constructor(private customerService: CustomerService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadCustomers();
   }
 
@@ -30,7 +30,6 @@ export class CustomerComponent implements OnInit {
       error: (err) => {
         this.errorMessage = 'gagal memuat data';
         this.isLoading = false;
-        console.log(err);
       },
     });
   }
