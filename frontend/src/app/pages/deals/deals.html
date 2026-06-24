@@ -1,0 +1,34 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Deals</h5>
+
+  <div *ngIf="!isLoading && !errorMessage" class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Lead ID</th>
+          <th>Title</th>
+          <th>Value</th>
+          <th>Stage</th>
+          <th>Closed At</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let deal of deals">
+          <td>{{ deal.id }}</td>
+          <td>{{ deal.lead_id }}</td>
+          <td>{{ deal.title }}</td>
+          <td>{{ deal.value | currency: 'IDR' : 'symbol' : '1.0-0' }}</td>
+          <td>
+            <span class="badge bg-label-info">{{ deal.stage }}</span>
+          </td>
+          <td>{{ deal.closed_at ? (deal.closed_at | date: 'short') : '-' }}</td>
+          <td>{{ deal.created_at | date: 'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->

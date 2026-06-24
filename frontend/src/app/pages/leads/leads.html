@@ -1,0 +1,35 @@
+<!-- Basic Bootstrap Table -->
+<div class="card">
+  <h5 class="card-header">Table Leads</h5>
+  <div *ngIf="!isLoading && !errorMessage" class="table-responsive text-nowrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer ID</th>
+          <th>Title</th>
+          <th>Source</th>
+          <th>Notes</th>
+          <th>Status</th>
+          <th>Assigned To</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+        <tr *ngFor="let lead of leads">
+          <td>{{ lead.id }}</td>
+          <td>{{ lead.customer_id }}</td>
+          <td>{{ lead.title }}</td>
+          <td>{{ lead.source }}</td>
+          <td>{{ lead.notes }}</td>
+          <td>
+            <span class="badge bg-label-primary">{{ lead.status }}</span>
+          </td>
+          <td>{{ lead.assigned_to }}</td>
+          <td>{{ lead.created_at | date: 'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!--/ Basic Bootstrap Table -->

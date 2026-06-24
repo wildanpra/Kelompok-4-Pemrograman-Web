@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Inject, PLATFORM_ID, AfterViewInit, Component, OnInit } from '@angular/core';
 import { CustomerService } from '../../service/customer_services';
 import { Customer } from '../../models/Customer';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-customer',
@@ -14,11 +14,24 @@ export class CustomerComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string | null = null;
 
-  constructor(private customerService: CustomerService) {}
+  // constructor(private customerService: CustomerService) {}
+
+  constructor(
+    private customerService: CustomerService,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {}
 
   ngOnInit(): void {
     this.loadCustomers();
   }
+
+  // async ngAfterViewInit(): Promise<void> {
+  //   if (isPlatformBrowser(this.platformId)) {
+  //     // const { DataTable } = await import('simple-datatables');
+  //     // const table = this.tableRef?.nativeElement;
+  //     // if (table) new DataTable(table);
+  //   }
+  // }
 
   loadCustomers(): void {
     this.isLoading = true;
