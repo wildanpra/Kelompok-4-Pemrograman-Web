@@ -19,13 +19,15 @@ router.get("/", (req, res) => {
 router.post("/register", (req, res) => AuthController.register(req, res));
 router.post("/login", (req, res) => AuthController.login(req, res));
 
-router.get("/dashboard", (req, res) => DashboardController.index(req, res));
+router.get("/dashboard", auth, (req, res) =>
+  DashboardController.index(req, res),
+);
 
-router.get("/customers", CustomerController.index);
-router.get("/customers/:id", CustomerController.show);
-router.post("/customers", CustomerController.store);
-router.put("/customers/:id", CustomerController.update);
-router.delete("/customers/:id", CustomerController.destroy);
+router.get("/customers", auth, CustomerController.index);
+router.get("/customers/:id", auth, CustomerController.show);
+router.post("/customers", auth, CustomerController.store);
+router.put("/customers/:id", auth, CustomerController.update);
+router.delete("/customers/:id", auth, CustomerController.destroy);
 
 //Routing Contact
 router.get("/contacts", ContactsController.index);
@@ -35,11 +37,11 @@ router.put("/contacts/:id", ContactsController.update);
 router.delete("/contacts/:id", ContactsController.destroy);
 
 //Routing Activities
-router.get("/activities", ActivitiesController.index);
-router.get("/activities/:id", ActivitiesController.show);
-router.post("/activities", ActivitiesController.store);
-router.put("/activities/:id", ActivitiesController.update);
-router.delete("/activities/:id", ActivitiesController.destroy);
+router.get("/activities", auth, ActivitiesController.index);
+router.get("/activities/:id", auth, ActivitiesController.show);
+router.post("/activities", auth, ActivitiesController.store);
+router.put("/activities/:id", auth, ActivitiesController.update);
+router.delete("/activities/:id", auth, ActivitiesController.destroy);
 
 //Routing Contacts
 router.get("/contacts", ContactsController.index);

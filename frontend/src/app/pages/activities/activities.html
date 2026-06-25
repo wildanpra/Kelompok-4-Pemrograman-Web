@@ -1,4 +1,4 @@
-<div *ngIf="view === 'list'">
+<div *ngIf="view !== 'edit'">
   <!-- Basic Bootstrap Table -->
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -16,6 +16,7 @@
             <th>description</th>
             <th>activity_date</th>
             <th>created_by</th>
+            <th>action</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
@@ -26,6 +27,12 @@
             <td>{{ a.description }}</td>
             <td>{{ a.activity_date }}</td>
             <td>{{ a.created_by }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" (click)="showEditById(a.id)">Edit</button>
+              <button class="btn btn-danger btn-sm ms-1" (click)="deleteActivity(a.id)">
+                Delete
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -124,3 +131,80 @@
     </div>
   </div>
 </div>
+
+<div [hidden]="view !== 'edit'">
+  <div class="container-fluid px-4">
+    <h1 class="mt-4">Edit Activity</h1>
+    <div class="card shadow-lg border-0 rounded-lg mt-4">
+      <div class="card-header">
+        <h3 class="text-center font-weight-light my-4">Form Edit Activity</h3>
+      </div>
+      <div class="card-body">
+        <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+        <form [formGroup]="editForm" (ngSubmit)="submitUpdate()">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="customer_id">
+                <option value="" disabled selected>-- Pilih Customer --</option>
+                <option *ngFor="let customers of customer" [value]="customers.id">
+                  {{ customers.name }}
+                </option>
+              </select>
+              <div
+                *ngIf="editForm.get('customer_id')?.invalid && editForm.get('customer_id')?.touched"
+                class="text-danger small mt-1"
+              >
+                Customer wajib dipilih
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" formControlName="type">
+                <option value="Call">Call</option>
+                <option value="Email">Email</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Note">Note</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Description</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="description"
+                placeholder="Description"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Activity Date</label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                formControlName="activity_date"
+                placeholder="Activity Date"
+              />
+              <div
+                *ngIf="editForm.get('activity_date')?.invalid && editForm.get('activity_date')?.touched"
+                class="text-danger small mt-1"
+              >
+                Activity Date wajib diisi
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSaving">
+              {{ isSaving ? 'Menyimpan...' : 'Update' }}
+            </button>
+            <button type="button" class="btn btn-danger" (click)="backToList()">Batal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

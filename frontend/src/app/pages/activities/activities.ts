@@ -14,6 +14,7 @@ import { Activities } from '../../models/Activities';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-activities',
@@ -22,7 +23,7 @@ import { Router } from '@angular/router';
   templateUrl: './activities.html',
 })
 export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  view: 'list' | 'create' = 'list';
+  view: 'list' | 'create' | 'edit' = 'list';
   activities: Activities[] = [];
   customer: Customer[] = [];
   isLoading: boolean = false;
@@ -31,6 +32,8 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   successMessage: string | null = null;
 
   createForm: FormGroup;
+  editForm: FormGroup;
+  selectedActivityId: number | null = null;
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
@@ -62,6 +65,12 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
       // 2. TAMBAHAN DI SINI: Ganti nilai awal String kosong menjadi fungsi getTodayDateTimeString()
       activity_date: [this.getTodayDateTimeString(), Validators.required],
       created_by: ['1'],
+    });
+    this.editForm = this.fb.group({
+      customer_id: ['', Validators.required],
+      type: [''],
+      description: [''],
+      activity_date: [this.getTodayDateTimeString(), Validators.required],
     });
   }
 
@@ -108,7 +117,14 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   }
 
   showCreate(): void {
-    this.createForm.reset({ status: 'Active', created_by: 1 });
+    const defaultCustId = this.customer.length ? this.customer[0].id : '';
+    this.createForm.reset({
+      customer_id: defaultCustId,
+      type: 'Call',
+      description: '',
+      activity_date: this.getTodayDateTimeString(),
+      created_by: 1,
+    });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'create';
@@ -139,7 +155,11 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
       },
       error: (err) => {
         this.isSaving = false;
-        this.errorMsg = err.error?.message || 'Gagal menambahkan activities.';
+        const backendErrors = err.error?.errors;
+        this.errorMsg = Array.isArray(backendErrors)
+          ? backendErrors.join(', ')
+          : (err.error?.message || 'Gagal menambahkan activities.');
+        this.cdr.detectChanges();
         console.error(err);
       },
     });
@@ -150,5 +170,116 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
     this.errorMsg = '';
     this.successMsg = '';
     this.needsTableInit = true;
+  }
+
+  formatDateTimeLocal(dateInput: any): string {
+    if (!dateInput) return '';
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  showEditById(id: number | undefined): void {
+    const activity = this.activities.find((a) => a.id === id);
+    if (!activity) {
+      this.errorMsg = 'Data activity tidak ditemukan';
+      return;
+    }
+    this.selectedActivityId = activity.id!;
+    this.editForm.reset();
+    
+    const formattedDate = this.formatDateTimeLocal(activity.activity_date);
+    
+    this.editForm.patchValue({
+      customer_id: activity.customer_id,
+      type: activity.type,
+      description: activity.description,
+      activity_date: formattedDate
+    });
+
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'edit';
+  }
+
+  submitUpdate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.editForm.invalid || !this.selectedActivityId) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar';
+      return;
+    }
+    const rawValue = this.editForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+    this.isSaving = true;
+    this.errorMsg = '';
+    this.ActivitiesService.update(this.selectedActivityId, payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        Swal.fire({
+          title: 'Success',
+          text: 'Activity berhasil diupdate',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/activities';
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.isSaving = false;
+        const backendErrors = err.error?.errors;
+        this.errorMsg = Array.isArray(backendErrors)
+          ? backendErrors.join(', ')
+          : (err.error?.message || 'Gagal memperbarui activities');
+        this.cdr.detectChanges();
+        console.error(err);
+      },
+    });
+  }
+
+  deleteActivity(id: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    Swal.fire({
+      title: 'Apakah Anda yakin ingin menghapus activity ini?',
+      text: 'Data yang dihapus tidak dapat dikembalikan!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Tidak, batalkan',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.ActivitiesService.delete(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Activity berhasil dihapus.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = '/activities';
+              this.cdr.detectChanges();
+            });
+          },
+          error: (err) => {
+            this.isSaving = false;
+            this.errorMsg = err.error?.message || 'Gagal menghapus activity';
+            console.error(err);
+          },
+        });
+      }
+    });
   }
 }

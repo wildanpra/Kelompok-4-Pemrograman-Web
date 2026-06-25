@@ -1,4 +1,4 @@
-const ACTIVITY_TYPES = ['call', 'meeting', 'email', 'other'];
+const ACTIVITY_TYPES = ['call', 'meeting', 'email', 'note', 'other'];
 
 const validateId = (id) => {
   if (!id || isNaN(id)) return "ID harus berupa angka";

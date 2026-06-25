@@ -41,4 +41,12 @@ export class ActivitiesService extends BaseService {
       })
       .pipe(catchError(this.handleError));
   }
+
+  delete(id: number): Observable<ApiResponse<any>> {
+    return this.http
+      .delete<ApiResponse<any>>(`${this.apiUrl}/activities/${id}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }
