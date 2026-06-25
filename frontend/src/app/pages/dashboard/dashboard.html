@@ -1,2 +1,81 @@
-<p>dashboard works!</p>
-<h1>dashboard</h1>
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Dashboard Summary</h1>
+
+  <div *ngIf="isLoading" class="text-center p-5">Memuat data...</div>
+
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+  <div class="row" *ngIf="stats">
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-primary text-white mb-4">
+        <div class="card-body">
+          <h3>{{ stats.customers ?? 0 }}</h3>
+          <div>Total Customers</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-warning text-white mb-4">
+        <div class="card-body">
+          <h3>{{ stats.leads ?? 0 }}</h3>
+          <div>Total Leads</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+      <div class="card bg-success text-white mb-4">
+        <div class="card-body">
+          <h3>{{ stats.deals ?? 0 }}</h3>
+          <div>Total Deals</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="stats">
+    <div class="col-xl-6">
+      <div class="card mb-4">
+        <div class="card-header">Leads by Status</div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li
+              class="list-group-item d-flex justify-content-between"
+              *ngFor="let item of stats.leads_by_status || []"
+            >
+              {{ item.status }}
+              <span class="badge bg-primary">{{ item.total }}</span>
+            </li>
+            <li
+              class="list-group-item text-muted"
+              *ngIf="!(stats.leads_by_status && stats.leads_by_status.length)"
+            >
+              Tidak ada data
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card mb-4">
+        <div class="card-header">Deals by Stage</div>
+        <div class="card-body">
+          <ul class="list-group">
+            <li
+              class="list-group-item d-flex justify-content-between"
+              *ngFor="let item of stats.deals_by_stage || []"
+            >
+              {{ item.stage }}
+              <span class="badge bg-success">{{ item.total }}</span>
+            </li>
+            <li
+              class="list-group-item text-muted"
+              *ngIf="!(stats.deals_by_stage && stats.deals_by_stage.length)"
+            >
+              Tidak ada data
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

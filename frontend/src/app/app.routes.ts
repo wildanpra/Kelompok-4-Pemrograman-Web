@@ -7,8 +7,13 @@ import { UserComponent } from './pages/user/user';
 import { ActivitiesComponent } from './pages/activities/activities';
 import { LeadsComponent } from './pages/leads/leads';
 import { DealsComponent } from './pages/deals/deals';
+import { Login } from './pages/auth/login/login';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    component: Login,
+  },
   {
     path: '',
     component: Main,
@@ -48,4 +53,5 @@ export const routes: Routes = [
       },
     ],
   },
+  { path: '**', redirectTo: 'Login' },
 ];
