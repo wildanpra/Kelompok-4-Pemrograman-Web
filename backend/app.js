@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const router = require("./routes/api");
 const db = require("./config/database");
 const errorHandler = require("./middleware/errorHandler");
@@ -7,11 +8,17 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express()
 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 //Menggunakan router API
 app.use(router);
+
 
 app.get("/test-db", async (req, res) => {
     try {
