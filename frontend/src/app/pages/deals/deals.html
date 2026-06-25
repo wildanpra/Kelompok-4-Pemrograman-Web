@@ -1,34 +1,130 @@
-<!-- Basic Bootstrap Table -->
-<div class="card">
-  <h5 class="card-header">Table Deals</h5>
+<div *ngIf="view === 'list'">
+  <!-- Basic Bootstrap Table -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Table Deals</h5>
+      <button class="btn btn-primary btn-sm" (click)="showCreate()">Tambah Deal</button>
+    </div>
 
-  <div class="table-responsive text-nowrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>ID</th>
-          <th>Lead ID</th>
-          <th>Title</th>
-          <th>Value</th>
-          <th>Stage</th>
-          <th>Closed At</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody class="table-border-bottom-0">
-        <tr *ngFor="let deal of deals; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ deal.id }}</td>
-          <td>{{ deal.lead_id }}</td>
-          <td>{{ deal.title }}</td>
-          <td>{{ deal.value }}</td>
-          <td>{{ deal.stage }}</td>
-          <td>{{ deal.closed_at }}</td>
-          <td>{{ deal.created_at }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>ID</th>
+            <th>Lead ID</th>
+            <th>Title</th>
+            <th>Value</th>
+            <th>Stage</th>
+            <th>Closed At</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          <tr *ngFor="let deal of deals; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ deal.id }}</td>
+            <td>{{ deal.lead_id }}</td>
+            <td>{{ deal.title }}</td>
+            <td>{{ deal.value }}</td>
+            <td>{{ deal.stage }}</td>
+            <td>{{ deal.closed_at }}</td>
+            <td>{{ deal.created_at }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!--/ Basic Bootstrap Table -->
+</div>
+
+<div *ngIf="view === 'create'">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center my-4 gap-3">
+      <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">Kembali</button>
+      <h1 class="mb-0 fs-4 fw-bold">Tambah Deal</h1>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body p-4">
+        <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+        <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Lead <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="lead_id">
+                <option *ngFor="let lead of leadsList" [value]="lead.id">
+                  {{ lead.title }} (ID: {{ lead.id }})
+                </option>
+              </select>
+              <div
+                *ngIf="createForm.get('lead_id')?.invalid && createForm.get('lead_id')?.touched"
+                class="text-danger small mt-1"
+              >
+                Lead wajib dipilih
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Title <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="title"
+                placeholder="Title deal"
+              />
+              <div
+                *ngIf="createForm.get('title')?.invalid && createForm.get('title')?.touched"
+                class="text-danger small mt-1"
+              >
+                Title wajib diisi
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Value</label>
+              <input
+                type="number"
+                class="form-control"
+                formControlName="value"
+                placeholder="Deal Value"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Stage</label>
+              <select class="form-select" formControlName="stage">
+                <option value="contacted">Contacted</option>
+                <option value="qualified">Qualified</option>
+                <option value="lost">Lost</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Closed At</label>
+              <input
+                type="date"
+                class="form-control"
+                formControlName="closed_at"
+              />
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="createForm.invalid || isSaving"
+            >
+              {{ isSaving ? 'Menyimpan...' : 'Simpan' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
-<!--/ Basic Bootstrap Table -->

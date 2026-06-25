@@ -76,7 +76,7 @@ export class UserComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   showCreate(): void {
-    this.createForm.reset({ status: 'Active', created_by: 1 });
+    this.createForm.reset({ role: 'user' });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'create';
@@ -102,7 +102,7 @@ export class UserComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.userService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/users';
+        window.location.href = '/user';
         this.cdr.detectChanges();
       },
       error: (err) => {

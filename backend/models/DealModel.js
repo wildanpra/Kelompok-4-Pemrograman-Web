@@ -49,4 +49,12 @@ const removeByLeadId = async (leadId) =>{
   await db.query(`DELETE FROM deals WHERE lead_id = ?`, [leadId])
 };
 
-module.exports = { findAll, findById, createFormLead, updateStageByLeadId, removeByLeadId };
+const store = async ({ lead_id, title, value, stage, closed_at }) => {
+  const [{insertId}] = await db.query(
+    `INSERT INTO deals (lead_id, title, value, stage, closed_at) VALUES (?, ?, ?, ?, ?)`,
+    [lead_id, title, value ?? null, stage ?? null, closed_at ?? null]
+  );
+  return insertId;
+};
+
+module.exports = { findAll, findById, createFormLead, updateStageByLeadId, removeByLeadId, store };

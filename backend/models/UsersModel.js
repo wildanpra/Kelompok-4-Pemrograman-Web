@@ -21,7 +21,18 @@ const findById = async (id) => {
     }
 }
 
+const store = async ({ name, email, password, role }) => {
+    try {
+        const query = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
+        const [result] = await db.query(query, [name, email, password, role ?? 'user']);
+        return result.insertId;
+    } catch(error) {
+        throw error;
+    }
+}
+
 module.exports = {
     findAll,
-    findById
+    findById,
+    store
 }

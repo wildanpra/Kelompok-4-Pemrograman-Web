@@ -8,7 +8,9 @@ import {
   AfterViewChecked,
 } from '@angular/core';
 import { ContactService } from '../../service/contact_services';
+import { CustomerService } from '../../service/customer_services';
 import { Contact } from '../../models/Contact';
+import { Customer } from '../../models/Customer';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +24,7 @@ import { Router } from '@angular/router';
 export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked {
   view: 'list' | 'create' = 'list';
   contacts: Contact[] = [];
+  customersList: Customer[] = [];
   isLoading: boolean = false;
   isSaving: boolean = false;
   errorMessage: string | null = null;
@@ -34,6 +37,7 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   constructor(
     private contactService: ContactService,
+    private customerService: CustomerService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
@@ -41,17 +45,18 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
   ) {
     this.createForm = this.fb.group({
       customer_id: ['', Validators.required],
-      name: [''],
+      name: ['', Validators.required],
       email: [''],
       phone: [''],
-      position: ['Active'],
-      created_at: [1],
+      position: [''],
+      created_by: [1],
     });
   }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadContact();
+      this.loadCustomers();
     } else {
       this.isLoading = false;
     }
@@ -76,8 +81,26 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
 
+  loadCustomers(): void {
+    this.customerService.getAll().subscribe({
+      next: (res) => {
+        this.customersList = res.data;
+        if (this.customersList.length && !this.createForm.get('customer_id')?.value) {
+          this.createForm.patchValue({ customer_id: this.customersList[0].id });
+        }
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+
   showCreate(): void {
-    this.createForm.reset({ status: 'Active', created_by: 1 });
+    this.createForm.reset({
+      customer_id: this.customersList.length ? this.customersList[0].id : '',
+      position: '',
+      created_by: 1
+    });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'create';
@@ -103,7 +126,7 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.contactService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/contacts';
+        window.location.href = '/contact';
         this.cdr.detectChanges();
       },
       error: (err) => {

@@ -14,13 +14,13 @@ export class UserService extends BaseService {
 
   getAll(): Observable<ApiResponse<User[]>> {
     return this.http
-      .get<ApiResponse<User[]>>(`${this.apiUrl}/contacts`, { headers: this.getHeaders() })
+      .get<ApiResponse<User[]>>(`${this.apiUrl}/users`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
   create(data: Partial<User>): Observable<ApiResponse<{ id: number }>> {
     return this.http
-      .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/contacts`, data, {
+      .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/users`, data, {
         headers: this.getHeaders(),
       })
       .pipe(catchError(this.handleError));

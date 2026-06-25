@@ -50,9 +50,11 @@ router.delete("/leads/:id", LeadController.destroy);
 //Routing deals
 router.get("/deals", DealController.index);
 router.get("/deals/:id", DealController.show);
+router.post("/deals", DealController.store);
 
 //Routing Users
 router.get("/users", UsersController.index);
 router.get("/users/:id", UsersController.show);
+router.post("/users", UsersController.store);
 
 module.exports = router;

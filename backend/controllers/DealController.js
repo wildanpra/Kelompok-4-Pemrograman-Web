@@ -27,8 +27,18 @@ class DealController {
       res.status(500).json({ success: false, message: err.message });
     }
   }
-  store(req, res) {
-    res.send("Menambahkan data");
+  async store(req, res) {
+    try {
+      const { lead_id, title, value, stage, closed_at } = req.body;
+      const dealId = await DealModel.store({ lead_id, title, value, stage, closed_at });
+      res.status(201).json({
+        success: true,
+        message: "Deal berhasil ditambahkan",
+        data: { id: dealId }
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
   }
   update(req, res) {
     const { id } = req.params;

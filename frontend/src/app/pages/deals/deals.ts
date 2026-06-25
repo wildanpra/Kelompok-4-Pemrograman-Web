@@ -8,7 +8,9 @@ import {
   AfterViewChecked,
 } from '@angular/core';
 import { DealService } from '../../service/deal_services';
+import { LeadService } from '../../service/lead_services';
 import { Deal } from '../../models/Deal';
+import { Lead } from '../../models/Lead';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +24,7 @@ import { Router } from '@angular/router';
 export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   view: 'list' | 'create' = 'list';
   deals: Deal[] = [];
+  leadsList: Lead[] = [];
   isLoading: boolean = false;
   isSaving: boolean = false;
   errorMessage: string | null = null;
@@ -34,6 +37,7 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   constructor(
     private dealService: DealService,
+    private leadService: LeadService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
@@ -41,7 +45,7 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   ) {
     this.createForm = this.fb.group({
       lead_id: ['', Validators.required],
-      title: [''],
+      title: ['', Validators.required],
       value: [''],
       stage: [''],
       closed_at: [''],
@@ -52,6 +56,7 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadDeal();
+      this.loadLeads();
     } else {
       this.isLoading = false;
     }
@@ -76,8 +81,26 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     });
   }
 
+  loadLeads(): void {
+    this.leadService.getAll().subscribe({
+      next: (res) => {
+        this.leadsList = res.data;
+        if (this.leadsList.length && !this.createForm.get('lead_id')?.value) {
+          this.createForm.patchValue({ lead_id: this.leadsList[0].id });
+        }
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+
   showCreate(): void {
-    this.createForm.reset({ status: 'Active', created_by: 1 });
+    this.createForm.reset({
+      lead_id: this.leadsList.length ? this.leadsList[0].id : '',
+      stage: 'contacted',
+      created_at: 1
+    });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'create';

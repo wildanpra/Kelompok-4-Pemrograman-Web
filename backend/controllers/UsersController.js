@@ -48,6 +48,24 @@ class UsersController {
       });
     }
   }
+
+  async store(req, res) {
+    try {
+      const { name, email, password, role } = req.body;
+      const userId = await UsersModels.store({ name, email, password, role });
+      res.status(201).json({
+        status: "success",
+        message: "User berhasil ditambahkan",
+        data: { id: userId, name, email, role }
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Gagal menambahkan user",
+        error: error.message
+      });
+    }
+  }
 }
 
 module.exports = new UsersController();
