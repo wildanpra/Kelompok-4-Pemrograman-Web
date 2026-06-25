@@ -30,11 +30,11 @@ router.put("/customers/:id", auth, CustomerController.update);
 router.delete("/customers/:id", auth, CustomerController.destroy);
 
 //Routing Contact
-router.get("/contacts", ContactsController.index);
-router.get("/contacts/:id", ContactsController.show);
-router.post("/contacts", ContactsController.store);
-router.put("/contacts/:id", ContactsController.update);
-router.delete("/contacts/:id", ContactsController.destroy);
+router.get("/contacts", auth, ContactsController.index);
+router.get("/contacts/:id", auth, ContactsController.show);
+router.post("/contacts", auth, ContactsController.store);
+router.put("/contacts/:id", auth, ContactsController.update);
+router.delete("/contacts/:id", auth, ContactsController.destroy);
 
 //Routing Activities
 router.get("/activities", auth, ActivitiesController.index);
@@ -42,10 +42,6 @@ router.get("/activities/:id", auth, ActivitiesController.show);
 router.post("/activities", auth, ActivitiesController.store);
 router.put("/activities/:id", auth, ActivitiesController.update);
 router.delete("/activities/:id", auth, ActivitiesController.destroy);
-
-//Routing Contacts
-router.get("/contacts", ContactsController.index);
-router.get("/contacts/:id", ContactsController.show);
 
 //Routing Leads
 router.get("/leads", LeadController.index);
