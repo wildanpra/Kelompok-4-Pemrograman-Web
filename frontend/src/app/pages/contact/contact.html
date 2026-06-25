@@ -15,6 +15,7 @@
             <th>email</th>
             <th>phone</th>
             <th>position</th>
+            <th>action</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
@@ -25,6 +26,12 @@
             <td>{{ c.email }}</td>
             <td>{{ c.phone }}</td>
             <td>{{ c.position }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" (click)="showEditById(c.id)">Edit</button>
+              <button class="btn btn-danger btn-sm ms-1" (click)="deleteContact(c.id)">
+                Delete
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -54,7 +61,9 @@
                 </option>
               </select>
               <div
-                *ngIf="createForm.get('customer_id')?.invalid && createForm.get('customer_id')?.touched"
+                *ngIf="
+                  createForm.get('customer_id')?.invalid && createForm.get('customer_id')?.touched
+                "
                 class="text-danger small mt-1"
               >
                 Customer wajib dipilih
@@ -115,6 +124,95 @@
               [disabled]="createForm.invalid || isSaving"
             >
               {{ isSaving ? 'Menyimpan...' : 'Simpan' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div [hidden]="view !== 'edit'">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center my-4 gap-3">
+      <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">Kembali</button>
+      <h1 class="mb-0 fs-4 fw-bold">Edit Contact</h1>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body p-4">
+        <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+        <form [formGroup]="editForm" (ngSubmit)="submitUpdate()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="customer_id">
+                <option *ngFor="let cust of customersList" [value]="cust.id">
+                  {{ cust.name }} ({{ cust.company || 'No Company' }})
+                </option>
+              </select>
+              <div
+                *ngIf="editForm.get('customer_id')?.invalid && editForm.get('customer_id')?.touched"
+                class="text-danger small mt-1"
+              >
+                Customer wajib dipilih
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Nama <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Nama contact"
+              />
+              <div
+                *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched"
+                class="text-danger small mt-1"
+              >
+                Nama wajib diisi
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                formControlName="email"
+                placeholder="email@contoh.com"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="phone"
+                placeholder="08xxxxxxxxxx"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Jabatan (Position)</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="position"
+                placeholder="Jabatan"
+              />
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSaving">
+              {{ isSaving ? 'Menyimpan...' : 'Update' }}
             </button>
             <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
               Batal

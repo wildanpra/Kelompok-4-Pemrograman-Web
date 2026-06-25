@@ -6,6 +6,7 @@ import {
   ChangeDetectorRef,
   AfterViewInit,
   AfterViewChecked,
+  NgZone,
 } from '@angular/core';
 import { ContactService } from '../../service/contact_services';
 import { CustomerService } from '../../service/customer_services';
@@ -14,6 +15,7 @@ import { Customer } from '../../models/Customer';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-contact',
@@ -22,7 +24,7 @@ import { Router } from '@angular/router';
   templateUrl: './contact.html',
 })
 export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  view: 'list' | 'create' = 'list';
+  view: 'list' | 'create' | 'edit' = 'list';
   contacts: Contact[] = [];
   customersList: Customer[] = [];
   isLoading: boolean = false;
@@ -34,12 +36,15 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
+  editForm: FormGroup;
+  selectedContactId: number | null = null;
 
   constructor(
     private contactService: ContactService,
     private customerService: CustomerService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private ngZone: NgZone,
     private fb: FormBuilder,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
@@ -50,6 +55,14 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
       phone: [''],
       position: [''],
       created_by: [1],
+    });
+    this.editForm = this.fb.group({
+      customer_id: ['', Validators.required],
+      name: ['', Validators.required],
+      email: [''],
+      phone: [''],
+      position: [''],
+      //created_by: [1],
     });
   }
 
@@ -99,7 +112,7 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.createForm.reset({
       customer_id: this.customersList.length ? this.customersList[0].id : '',
       position: '',
-      created_by: 1
+      created_by: 1,
     });
     this.errorMsg = '';
     this.successMsg = '';
@@ -137,10 +150,97 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
     });
   }
 
+  // Ambil dari data lokal berdasarkan id -> dijamin sesuai baris yang diklik
+  showEditById(id: number | undefined): void {
+    const contact = this.contacts.find((c) => c.id === id);
+    if (!contact) {
+      this.errorMsg = 'Data contact tidak ditemukan';
+      return;
+    }
+    this.selectedContactId = contact.id!;
+    this.editForm.reset();
+    this.editForm.patchValue(contact);
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'edit';
+  }
+
+  submitUpdate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.editForm.invalid || !this.selectedContactId) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar';
+      return;
+    }
+    const rawValue = this.editForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+    this.isSaving = true;
+    this.errorMsg = '';
+    this.contactService.update(this.selectedContactId, payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        Swal.fire({
+          title: 'Success',
+          text: 'Contact berhasil diupdate',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/contact';
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = err.error?.message || 'Gagal memperbarui contact';
+        console.error(err);
+      },
+    });
+  }
+
   backToList(): void {
     this.view = 'list';
     this.errorMsg = '';
     this.successMsg = '';
     this.needsTableInit = true;
+  }
+
+  deleteContact(id: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    Swal.fire({
+      title: 'Apakah Anda yakin ingin menghapus contact ini?',
+      text: 'Data yang dihapus tidak dapat dikembalikan!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Tidak, batalkan',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.contactService.delete(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Contact berhasil dihapus.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = '/contact';
+              this.cdr.detectChanges();
+            });
+          },
+          error: (err) => {
+            this.isSaving = false;
+            this.errorMsg = err.error?.message || 'Gagal menghapus contact';
+            console.error(err);
+          },
+        });
+      }
+    });
   }
 }
