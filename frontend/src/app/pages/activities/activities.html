@@ -1,28 +1,126 @@
-<!-- Basic Bootstrap Table -->
-<div class="card">
-  <h5 class="card-header">Table Contact</h5>
-  <div class="table-responsive text-nowrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>customer_id</th>
-          <th>type</th>
-          <th>description</th>
-          <th>activity_date</th>
-          <th>created_by</th>
-        </tr>
-      </thead>
-      <tbody class="table-border-bottom-0">
-        <tr *ngFor="let a of activities">
-          <td>{{ a.customer_id }}</td>
-          <td>{{ a.type }}</td>
-          <td>{{ a.description }}</td>
-          <td>{{ a.activity_date }}</td>
-          <td>{{ a.created_by }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div *ngIf="view === 'list'">
+  <!-- Basic Bootstrap Table -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Table Activities</h5>
+      <button class="btn btn-primary btn-sm" (click)="showCreate()">Tambah Activities</button>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>customer_id</th>
+            <th>type</th>
+            <th>description</th>
+            <th>activity_date</th>
+            <th>created_by</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          <tr *ngFor="let a of activities; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ a.customer_id }}</td>
+            <td>{{ a.type }}</td>
+            <td>{{ a.description }}</td>
+            <td>{{ a.activity_date }}</td>
+            <td>{{ a.created_by }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!--/ Basic Bootstrap Table -->
+</div>
+
+<div *ngIf="view === 'create'">
+  <div class="container-fluid px-4">
+    <div class="d-flex align-items-center my-4 gap-3">
+      <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">Kembali</button>
+      <h1 class="mb-0 fs-4 fw-bold">Tambah Activities</h1>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body p-4">
+        <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+
+        <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Customer <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="customer_id">
+                <option value="" disabled selected>-- Pilih Customer --</option>
+
+                <option *ngFor="let customers of customer" [value]="customers.id">
+                  {{ customers.name }}
+                </option>
+              </select>
+
+              <div
+                *ngIf="
+                  createForm.get('customer_id')?.invalid && createForm.get('customer_id')?.touched
+                "
+                class="text-danger small mt-1"
+              >
+                Customer wajib dipilih
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" formControlName="type">
+                <option value="Call">Call</option>
+                <option value="Email">Email</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Note">Note</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Description</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="description"
+                placeholder="description"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Activity Date</label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                formControlName="activity_date"
+                placeholder="activities Date"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Created By</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="created_by"
+                placeholder="Created By"
+              />
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="createForm.invalid || isSaving"
+            >
+              {{ isSaving ? 'Menyimpan...' : 'Simpan' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
-<!--/ Basic Bootstrap Table -->
-

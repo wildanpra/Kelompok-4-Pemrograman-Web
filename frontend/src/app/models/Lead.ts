@@ -1,10 +1,12 @@
-export interface Activities {
+export interface Lead {
   id: number;
   customer_id: number;
-  type: string;
-  description: string;
-  activity_date: string;
-  created_by: number;
+  title: string;
+  source: string;
+  notes: string;
+  status: string;
+  assigned_to: number;
+  created_at: string;
 }
 
 export interface ApiResponse<T> {

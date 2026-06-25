@@ -9,8 +9,7 @@ export interface Customer {
   created_at?: string;
 }
 
-//rsponse dari backend {success, total, data}
-export interface ApiResponse<T>{
+export interface ApiResponse<T> {
   success: boolean;
   message: string;
   total?: number;

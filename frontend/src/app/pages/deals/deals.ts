@@ -7,21 +7,21 @@ import {
   AfterViewInit,
   AfterViewChecked,
 } from '@angular/core';
-import { CustomerService } from '../../service/customer_services';
-import { Customer } from '../../models/Customer';
+import { DealService } from '../../service/deal_services';
+import { Deal } from '../../models/Deal';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-customer',
+  selector: 'app-deals',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './customer.html',
+  templateUrl: './deals.html',
 })
-export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecked {
+export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   view: 'list' | 'create' = 'list';
-  customers: Customer[] = [];
+  deals: Deal[] = [];
   isLoading: boolean = false;
   isSaving: boolean = false;
   errorMessage: string | null = null;
@@ -33,25 +33,25 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
   needsTableInit: boolean = false;
 
   constructor(
-    private customerService: CustomerService,
+    private dealService: DealService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.createForm = this.fb.group({
-      name: ['', Validators.required],
-      email: [''],
-      phone: [''],
-      company: [''],
-      status: ['Active'],
-      created_by: [1],
+      lead_id: ['', Validators.required],
+      title: [''],
+      value: [''],
+      stage: [''],
+      closed_at: [''],
+      created_at: [1],
     });
   }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadCustomers();
+      this.loadDeal();
     } else {
       this.isLoading = false;
     }
@@ -60,12 +60,12 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
   ngAfterViewInit(): void {}
   ngAfterViewChecked(): void {}
 
-  loadCustomers(): void {
+  loadDeal(): void {
     this.isLoading = true;
-    console.log('CustomerComponent: Memanggil API Customer...');
-    this.customerService.getAll().subscribe({
+    console.log('DealComponent: Memanggil API Deal...');
+    this.dealService.getAll().subscribe({
       next: (res) => {
-        this.customers = res.data;
+        this.deals = res.data;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -100,15 +100,15 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
     this.isSaving = true;
     this.errorMsg = '';
 
-    this.customerService.create(payload).subscribe({
+    this.dealService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/customers';
+        window.location.href = '/deals';
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving = false;
-        this.errorMsg = err.error?.message || 'Gagal menambahkan customer.';
+        this.errorMsg = err.error?.message || 'Gagal menambahkan Deal.';
         console.error(err);
       },
     });

@@ -1,65 +1,122 @@
-import {  
-  Component,       
-  AfterViewInit,       
-  ElementRef,      
-  ViewChild,    
-  OnInit,     
-  PLATFORM_ID,     
-  Inject
-} from '@angular/core';
-
 import {
-  isPlatformBrowser,
-  CommonModule
-} from '@angular/common';
-
-import { UserService } from '../../service/user_service';
-
+  Inject,
+  PLATFORM_ID,
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  AfterViewInit,
+  AfterViewChecked,
+} from '@angular/core';
+import { UserService } from '../../service/user_services';
 import { User } from '../../models/User';
-
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-user',
-  imports: [CommonModule],
+  selector: 'app-users',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './user.html',
-  standalone: true
 })
+export class UserComponent implements OnInit, AfterViewInit, AfterViewChecked {
+  view: 'list' | 'create' = 'list';
+  users: User[] = [];
+  isLoading: boolean = false;
+  isSaving: boolean = false;
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
 
-export class UserComponent implements OnInit, AfterViewInit {
-  @ViewChild('datatablesSimple') tableRef !: ElementRef;
-  user: User[] = [];
-  isLoading: boolean = true;
-  errorMsg: string =''
+  createForm: FormGroup;
+  errorMsg: string = '';
+  successMsg: string = '';
+  needsTableInit: boolean = false;
 
-  constructor (
+  constructor(
     private userService: UserService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  ngOnInit(): void {
-    this.loadUser();
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private fb: FormBuilder,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {
+    this.createForm = this.fb.group({
+      name: ['', Validators.required],
+      email: [''],
+      password: [''],
+      role: [''],
+      created_at: [1],
+    });
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    if(isPlatformBrowser(this.platformId)) {
-      const {DataTable} = await import ('simple-datatables');
-      const table = this.tableRef?.nativeElement;
-    if(table)new DataTable(table);
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadUser();
+    } else {
+      this.isLoading = false;
     }
   }
 
-  loadUser(): void{
+  ngAfterViewInit(): void {}
+  ngAfterViewChecked(): void {}
+
+  loadUser(): void {
     this.isLoading = true;
+    console.log('UserComponent: Memanggil API User...');
     this.userService.getAll().subscribe({
-      next : (res) =>{
-        this.user = res.data;
+      next: (res) => {
+        this.users = res.data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = 'Gagal memuat data';
         this.isLoading = false;
       },
-      error: (err)=>{
-        this.errorMsg = "Gagal memuat data";
-        this.isLoading = false;
-        console.log(err);
-      }
     });
+  }
+
+  showCreate(): void {
+    this.createForm.reset({ status: 'Active', created_by: 1 });
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'create';
+  }
+
+  submitCreate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (this.createForm.invalid) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar.';
+      return;
+    }
+
+    const rawValue = this.createForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+
+    this.isSaving = true;
+    this.errorMsg = '';
+
+    this.userService.create(payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        window.location.href = '/users';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = err.error?.message || 'Gagal menambahkan users.';
+        console.error(err);
+      },
+    });
+  }
+
+  backToList(): void {
+    this.view = 'list';
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.needsTableInit = true;
   }
 }

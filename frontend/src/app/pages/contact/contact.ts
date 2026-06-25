@@ -1,65 +1,123 @@
-import {  
-  Component,       
-  AfterViewInit,       
-  ElementRef,      
-  ViewChild,    
-  OnInit,     
-  PLATFORM_ID,     
-  Inject
-} from '@angular/core';
-
 import {
-  isPlatformBrowser,
-  CommonModule
-} from '@angular/common';
-
-import { ContactService } from '../../service/contact_service';
-
+  Inject,
+  PLATFORM_ID,
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  AfterViewInit,
+  AfterViewChecked,
+} from '@angular/core';
+import { ContactService } from '../../service/contact_services';
 import { Contact } from '../../models/Contact';
-
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contact',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './contact.html',
-  standalone: true
 })
+export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked {
+  view: 'list' | 'create' = 'list';
+  contacts: Contact[] = [];
+  isLoading: boolean = false;
+  isSaving: boolean = false;
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
 
-export class ContactComponent implements OnInit, AfterViewInit {
-  @ViewChild('datatablesSimple') tableRef !: ElementRef;
-  contact: Contact[] = [];
-  isLoading: boolean = true;
-  errorMsg: string =''
+  createForm: FormGroup;
+  errorMsg: string = '';
+  successMsg: string = '';
+  needsTableInit: boolean = false;
 
-  constructor (
+  constructor(
     private contactService: ContactService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
-
-  ngOnInit(): void {
-    this.loadContact();
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private fb: FormBuilder,
+    @Inject(PLATFORM_ID) private platformId: Object,
+  ) {
+    this.createForm = this.fb.group({
+      customer_id: ['', Validators.required],
+      name: [''],
+      email: [''],
+      phone: [''],
+      position: ['Active'],
+      created_at: [1],
+    });
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    if(isPlatformBrowser(this.platformId)) {
-      const {DataTable} = await import ('simple-datatables');
-      const table = this.tableRef?.nativeElement;
-    if(table)new DataTable(table);
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadContact();
+    } else {
+      this.isLoading = false;
     }
   }
 
-  loadContact(): void{
+  ngAfterViewInit(): void {}
+  ngAfterViewChecked(): void {}
+
+  loadContact(): void {
     this.isLoading = true;
+    console.log('ContactComponent: Memanggil API Contact...');
     this.contactService.getAll().subscribe({
-      next : (res) =>{
-        this.contact = res.data;
+      next: (res) => {
+        this.contacts = res.data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = 'Gagal memuat data';
         this.isLoading = false;
       },
-      error: (err)=>{
-        this.errorMsg = "Gagal memuat data";
-        this.isLoading = false;
-        console.log(err);
-      }
     });
+  }
+
+  showCreate(): void {
+    this.createForm.reset({ status: 'Active', created_by: 1 });
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'create';
+  }
+
+  submitCreate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (this.createForm.invalid) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar.';
+      return;
+    }
+
+    const rawValue = this.createForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+
+    this.isSaving = true;
+    this.errorMsg = '';
+
+    this.contactService.create(payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        window.location.href = '/contacts';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = err.error?.message || 'Gagal menambahkan contact.';
+        console.error(err);
+      },
+    });
+  }
+
+  backToList(): void {
+    this.view = 'list';
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.needsTableInit = true;
   }
 }
