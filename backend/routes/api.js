@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 router.post("/register", (req, res) => AuthController.register(req, res));
 router.post("/login", (req, res) => AuthController.login(req, res));
 
-router.post("/dashboard", (req, res) => DashboardController.index(req, res));
+router.get("/dashboard", (req, res) => DashboardController.index(req, res));
 
 router.get("/customers", CustomerController.index);
 router.get("/customers/:id", CustomerController.show);
