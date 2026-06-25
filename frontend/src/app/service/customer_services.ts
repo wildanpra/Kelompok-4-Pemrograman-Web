@@ -33,4 +33,12 @@ export class CustomerService extends BaseService {
       })
       .pipe(catchError(this.handleError));
   }
+
+  delete(id: number): Observable<ApiResponse<any>> {
+    return this.http
+      .delete<ApiResponse<any>>(`${this.apiUrl}/customers/${id}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }

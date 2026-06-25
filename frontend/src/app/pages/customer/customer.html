@@ -29,7 +29,9 @@
             <td>{{ c.status }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="showEditById(c.id)">Edit</button>
-              <!-- <button class="btn btn-danger btn-sm" (click)="deleteCustomer(c.id)">Delete</button> -->
+              <button class="btn btn-danger btn-sm ms-1" (click)="deleteCustomer(c.id)">
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -137,20 +139,38 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <div class="form-floating mb-3">
-                <input class="form-control" id="editName" formControlName="name" type="text" placeholder="Name" />
+                <input
+                  class="form-control"
+                  id="editName"
+                  formControlName="name"
+                  type="text"
+                  placeholder="Name"
+                />
                 <label for="editName">Name</label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-floating">
-                <input class="form-control" id="editCompany" formControlName="company" type="text" placeholder="Company" />
+                <input
+                  class="form-control"
+                  id="editCompany"
+                  formControlName="company"
+                  type="text"
+                  placeholder="Company"
+                />
                 <label for="editCompany">Perusahaan</label>
               </div>
             </div>
           </div>
 
           <div class="form-floating mb-3">
-            <input class="form-control" id="editEmail" type="email" formControlName="email" placeholder="name@example.com" />
+            <input
+              class="form-control"
+              id="editEmail"
+              type="email"
+              formControlName="email"
+              placeholder="name@example.com"
+            />
             <label for="editEmail">Email address</label>
           </div>
 

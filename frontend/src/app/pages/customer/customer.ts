@@ -13,6 +13,7 @@ import { Customer } from '../../models/Customer';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer',
@@ -128,7 +129,7 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
 
   // Ambil dari data lokal berdasarkan id -> dijamin sesuai baris yang diklik
   showEditById(id: number | undefined): void {
-    const customer = this.customers.find(c => c.id === id);
+    const customer = this.customers.find((c) => c.id === id);
     if (!customer) {
       this.errorMsg = 'Data customer tidak ditemukan';
       return;
@@ -157,13 +158,22 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
     this.customerService.update(this.selectedCustomerId, payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/customers'; // redirect
+        Swal.fire({
+          title: 'Success',
+          text: 'Customer berhasil diupdate',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/customers';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.isSaving = false;
         this.errorMsg = err.error?.message || 'Gagal memperbarui customers';
         console.error(err);
-      }
+      },
     });
   }
 
@@ -172,5 +182,42 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
     this.errorMsg = '';
     this.successMsg = '';
     this.needsTableInit = true;
+  }
+
+  deleteCustomer(id: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    Swal.fire({
+      title: 'Apakah Anda yakin ingin menghapus customer ini?',
+      text: 'Data yang dihapus tidak dapat dikembalikan!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Tidak, batalkan',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.customerService.delete(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Customer berhasil dihapus.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = '/customers';
+              this.cdr.detectChanges();
+            });
+          },
+          error: (err) => {
+            this.isSaving = false;
+            this.errorMsg = err.error?.message || 'Gagal menghapus customer';
+            console.error(err);
+          },
+        });
+      }
+    });
   }
 }
