@@ -8,11 +8,16 @@ const LeadController = require("../controllers/LeadController");
 const ActivitiesController = require("../controllers/ActivitiesController");
 const ContactsController = require("../controllers/ContactController");
 const DashboardController = require("../controllers/DashboardController");
+const AuthController = require("../controllers/AuthController");
+const auth = require("../middleware/auth");
 
 //Endpoint untuk mengakses halaman utama
 router.get("/", (req, res) => {
   res.send("Hello express!");
 });
+
+router.post("/register", (req, res) => AuthController.register(req, res));
+router.post("/login", (req, res) => AuthController.login(req, res));
 
 router.get("/dashboard", DashboardController.index);
 
