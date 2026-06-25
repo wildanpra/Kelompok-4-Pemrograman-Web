@@ -25,4 +25,12 @@ export class CustomerService extends BaseService {
       })
       .pipe(catchError(this.handleError));
   }
+
+  update(id: number, data: Partial<Customer>): Observable<ApiResponse<any>> {
+    return this.http
+      .put<ApiResponse<any>>(`${this.apiUrl}/customers/${id}`, data, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }

@@ -1,4 +1,4 @@
-<div *ngIf="view === 'list'">
+<div *ngIf="view !== 'edit'">
   <!-- Basic Bootstrap Table -->
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -16,6 +16,7 @@
             <th>phone</th>
             <th>company</th>
             <th>status</th>
+            <th>action</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
@@ -26,6 +27,10 @@
             <td>{{ c.phone }}</td>
             <td>{{ c.company }}</td>
             <td>{{ c.status }}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" (click)="showEditById(c.id)">Edit</button>
+              <!-- <button class="btn btn-danger btn-sm" (click)="deleteCustomer(c.id)">Delete</button> -->
+            </td>
           </tr>
         </tbody>
       </table>
@@ -113,6 +118,47 @@
             <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
               Batal
             </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div [hidden]="view !== 'edit'">
+  <div class="container-fluid px-4">
+    <h1 class="mt-4">Edit Customer</h1>
+    <div class="card shadow-lg border-0 rounded-lg mt-4">
+      <div class="card-header">
+        <h3 class="text-center font-weight-light my-4">Form Edit Customer</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="editForm" (ngSubmit)="submitUpdate()">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input class="form-control" id="editName" formControlName="name" type="text" placeholder="Name" />
+                <label for="editName">Name</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input class="form-control" id="editCompany" formControlName="company" type="text" placeholder="Company" />
+                <label for="editCompany">Perusahaan</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input class="form-control" id="editEmail" type="email" formControlName="email" placeholder="name@example.com" />
+            <label for="editEmail">Email address</label>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSaving">
+              {{ isSaving ? 'Menyimpan...' : 'Update' }}
+            </button>
+            <button type="button" class="btn btn-danger" (click)="backToList()">Batal</button>
           </div>
         </form>
       </div>

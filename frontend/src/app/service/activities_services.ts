@@ -23,4 +23,22 @@ export class ActivitiesService extends BaseService {
       })
       .pipe(catchError(this.handleError));
   }
+
+  //read semua data
+  getById(id: number): Observable<ApiResponse<Activities[]>> {
+    return this.http
+      .get<ApiResponse<Activities[]>>(`${this.apiUrl}/activities/${id}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
+
+  //create data
+  update(id: number, data: Partial<Activities>): Observable<ApiResponse<any>> {
+    return this.http
+      .put<ApiResponse<any>>(`${this.apiUrl}/activities/${id}`, data, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }

@@ -6,6 +6,7 @@ import {
   ChangeDetectorRef,
   AfterViewInit,
   AfterViewChecked,
+  NgZone,
 } from '@angular/core';
 import { CustomerService } from '../../service/customer_services';
 import { Customer } from '../../models/Customer';
@@ -20,7 +21,7 @@ import { Router } from '@angular/router';
   templateUrl: './customer.html',
 })
 export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  view: 'list' | 'create' = 'list';
+  view: 'list' | 'create' | 'edit' = 'list';
   customers: Customer[] = [];
   isLoading: boolean = false;
   isSaving: boolean = false;
@@ -31,12 +32,15 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
+  editForm: FormGroup;
+  selectedCustomerId: number | null = null;
 
   constructor(
     private customerService: CustomerService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
+    private ngZone: NgZone,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.createForm = this.fb.group({
@@ -46,6 +50,14 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
       company: [''],
       status: ['Active'],
       created_by: [1],
+    });
+    this.editForm = this.fb.group({
+      name: ['', Validators.required],
+      email: [''],
+      phone: [''],
+      company: [''],
+      status: ['Active'],
+      // created_by: [1],
     });
   }
 
@@ -111,6 +123,47 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
         this.errorMsg = err.error?.message || 'Gagal menambahkan customer.';
         console.error(err);
       },
+    });
+  }
+
+  // Ambil dari data lokal berdasarkan id -> dijamin sesuai baris yang diklik
+  showEditById(id: number | undefined): void {
+    const customer = this.customers.find(c => c.id === id);
+    if (!customer) {
+      this.errorMsg = 'Data customer tidak ditemukan';
+      return;
+    }
+    this.selectedCustomerId = customer.id!;
+    this.editForm.reset();
+    this.editForm.patchValue(customer);
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'edit';
+  }
+
+  submitUpdate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.editForm.invalid || !this.selectedCustomerId) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar';
+      return;
+    }
+    const rawValue = this.editForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+    this.isSaving = true;
+    this.errorMsg = '';
+    this.customerService.update(this.selectedCustomerId, payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        window.location.href = '/customers'; // redirect
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = err.error?.message || 'Gagal memperbarui customers';
+        console.error(err);
+      }
     });
   }
 
