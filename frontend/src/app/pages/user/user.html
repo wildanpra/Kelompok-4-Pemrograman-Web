@@ -46,55 +46,34 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Nama <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="name"
-                placeholder="Nama user"
-              />
-              <div
-                *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched"
-                class="text-danger small mt-1"
-              >
+              <input type="text" class="form-control" formControlName="name" placeholder="Nama user" />
+              <div *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched"
+                class="text-danger small mt-1">
                 Nama wajib diisi
               </div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Email</label>
-              <input
-                type="email"
-                class="form-control"
-                formControlName="email"
-                placeholder="email@contoh.com"
-              />
+              <input type="email" class="form-control" formControlName="email" placeholder="email@contoh.com" />
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Password</label>
-              <input
-                type="password"
-                class="form-control"
-                formControlName="password"
-                placeholder="••••••••"
-              />
+              <input type="password" class="form-control" formControlName="password" placeholder="••••••••" />
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Role</label>
               <select class="form-select" formControlName="role">
                 <option value="admin">Admin</option>
-                <option value="user">User</option>
+                <option value="staff">Staff</option>
               </select>
             </div>
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="createForm.invalid || isSaving"
-            >
+            <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid || isSaving">
               {{ isSaving ? 'Menyimpan...' : 'Simpan' }}
             </button>
             <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
