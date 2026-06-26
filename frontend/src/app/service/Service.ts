@@ -26,6 +26,10 @@ export class BaseService {
   }
   protected handleError(error: any): Observable<never> {
     console.log('API Error:', error);
+    if (error?.status === 401 && isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     return throwError(() => error);
   }
 }

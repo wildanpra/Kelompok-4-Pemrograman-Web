@@ -24,4 +24,20 @@ export class LeadService extends BaseService {
       })
       .pipe(catchError(this.handleError));
   }
+
+  update(id: number, data: Partial<Lead>): Observable<ApiResponse<any>> {
+    return this.http
+      .put<ApiResponse<any>>(`${this.apiUrl}/leads/${id}`, data, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
+
+  delete(id: number): Observable<ApiResponse<any>> {
+    return this.http
+      .delete<ApiResponse<any>>(`${this.apiUrl}/leads/${id}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(catchError(this.handleError));
+  }
 }

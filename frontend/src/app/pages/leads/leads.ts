@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { LeadService } from '../../service/lead_services';
 import { CustomerService } from '../../service/customer_services';
 import { UserService } from '../../service/user_services';
+import { AuthService } from '../../service/auth_service';
 import { Lead } from '../../models/Lead';
 import { Customer } from '../../models/Customer';
 import { User } from '../../models/User';
@@ -25,7 +26,7 @@ import Swal from 'sweetalert2';
   templateUrl: './leads.html',
 })
 export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  view: 'list' | 'create' = 'list';
+  view: 'list' | 'create' | 'edit' = 'list';
   leads: Lead[] = [];
   customersList: Customer[] = [];
   usersList: User[] = [];
@@ -35,6 +36,9 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   successMessage: string | null = null;
 
   createForm: FormGroup;
+  editForm: FormGroup;
+  selectedLeadId: number | null = null;
+  isAdmin: boolean = false;
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
@@ -43,6 +47,7 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private leadService: LeadService,
     private customerService: CustomerService,
     private userService: UserService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private router: Router,
@@ -56,9 +61,19 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
       status: ['New'],
       assigned_to: [''],
     });
+
+    this.editForm = this.fb.group({
+      customer_id: ['', Validators.required],
+      title: ['', Validators.required],
+      source: [''],
+      notes: [''],
+      status: ['New'],
+      assigned_to: [''],
+    });
   }
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
     if (isPlatformBrowser(this.platformId)) {
       this.loadLeads();
       this.loadCustomers();
@@ -170,5 +185,91 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.errorMsg = '';
     this.successMsg = '';
     this.needsTableInit = true;
+  }
+
+  showEditById(id: number | undefined): void {
+    const lead = this.leads.find((l) => l.id === id);
+    if (!lead) {
+      this.errorMsg = 'Data lead tidak ditemukan';
+      return;
+    }
+    this.selectedLeadId = lead.id!;
+    this.editForm.reset();
+    this.editForm.patchValue(lead);
+    this.errorMsg = '';
+    this.successMsg = '';
+    this.view = 'edit';
+  }
+
+  submitUpdate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.editForm.invalid || !this.selectedLeadId) {
+      this.errorMsg = 'Mohon lengkapi form dengan benar';
+      return;
+    }
+    const rawValue = this.editForm.value;
+    const payload = Object.keys(rawValue).reduce((acc, key) => {
+      acc[key] = rawValue[key] === '' ? null : rawValue[key];
+      return acc;
+    }, {} as any);
+    this.isSaving = true;
+    this.errorMsg = '';
+    this.leadService.update(this.selectedLeadId, payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        Swal.fire({
+          title: 'Success',
+          text: 'Lead berhasil diupdate',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/leads';
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = err.error?.message || 'Gagal memperbarui lead';
+        console.error(err);
+      },
+    });
+  }
+
+  deleteLead(id: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    Swal.fire({
+      title: 'Apakah Anda yakin ingin menghapus lead ini?',
+      text: 'Data yang dihapus tidak dapat dikembalikan!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Tidak, batalkan',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.leadService.delete(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Lead berhasil dihapus.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false,
+            }).then(() => {
+              window.location.href = '/leads';
+              this.cdr.detectChanges();
+            });
+          },
+          error: (err) => {
+            this.isSaving = false;
+            this.errorMsg = err.error?.message || 'Gagal menghapus lead';
+            console.error(err);
+          },
+        });
+      }
+    });
   }
 }
