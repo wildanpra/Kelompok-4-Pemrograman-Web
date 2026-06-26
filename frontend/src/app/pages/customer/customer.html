@@ -1,4 +1,4 @@
-<div *ngIf="view !== 'edit'">
+<div *ngIf="view === 'list'">
   <!-- Basic Bootstrap Table -->
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -29,7 +29,11 @@
             <td>{{ c.status }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="showEditById(c.id)">Edit</button>
-              <button class="btn btn-danger btn-sm ms-1" (click)="deleteCustomer(c.id)">
+              <button
+                *ngIf="isAdmin"
+                class="btn btn-danger btn-sm ms-1"
+                (click)="deleteCustomer(c.id)"
+              >
                 Delete
               </button>
             </td>

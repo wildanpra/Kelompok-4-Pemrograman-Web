@@ -28,7 +28,11 @@
             <td>{{ c.position }}</td>
             <td>
               <button class="btn btn-warning btn-sm" (click)="showEditById(c.id)">Edit</button>
-              <button class="btn btn-danger btn-sm ms-1" (click)="deleteContact(c.id)">
+              <button
+                *ngIf="isAdmin"
+                class="btn btn-danger btn-sm ms-1"
+                (click)="deleteContact(c.id)"
+              >
                 Delete
               </button>
             </td>

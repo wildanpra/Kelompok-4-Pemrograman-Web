@@ -15,6 +15,7 @@ import { Customer } from '../../models/Customer';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../service/auth_service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -38,10 +39,12 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
   needsTableInit: boolean = false;
   editForm: FormGroup;
   selectedContactId: number | null = null;
+  isAdmin: boolean = false;
 
   constructor(
     private contactService: ContactService,
     private customerService: CustomerService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private ngZone: NgZone,
@@ -67,6 +70,7 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
     if (isPlatformBrowser(this.platformId)) {
       this.loadContact();
       this.loadCustomers();
@@ -139,8 +143,16 @@ export class ContactComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.contactService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/contact';
-        this.cdr.detectChanges();
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Contact berhasil ditambahkan',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/contact';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.isSaving = false;

@@ -14,6 +14,7 @@ import { Lead } from '../../models/Lead';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-deals',
@@ -98,7 +99,7 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   showCreate(): void {
     this.createForm.reset({
       lead_id: this.leadsList.length ? this.leadsList[0].id : '',
-      stage: 'contacted',
+      stage: 'Proposal',
       created_at: 1
     });
     this.errorMsg = '';
@@ -126,8 +127,16 @@ export class DealsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.dealService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/deals';
-        this.cdr.detectChanges();
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Deal berhasil ditambahkan',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/deals';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.isSaving = false;

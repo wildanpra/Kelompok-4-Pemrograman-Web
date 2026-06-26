@@ -14,6 +14,7 @@ import { Activities } from '../../models/Activities';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../service/auth_service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -37,6 +38,7 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
+  isAdmin: boolean = false;
 
   // 1. TAMBAHAN DI SINI: Fungsi pembantu untuk membuat format string tanggal jam sekarang (HTML5 local)
   getTodayDateTimeString(): string {
@@ -53,6 +55,7 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   constructor(
     private ActivitiesService: ActivitiesService,
     private CustomerService: CustomerService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private fb: FormBuilder,
@@ -75,6 +78,7 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
   }
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
     if (isPlatformBrowser(this.platformId)) {
       this.loadActivities();
       this.loadCustomers();
@@ -150,8 +154,16 @@ export class ActivitiesComponent implements OnInit, AfterViewInit, AfterViewChec
     this.ActivitiesService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/activities';
-        this.cdr.detectChanges();
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Activity berhasil ditambahkan',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/activities';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.isSaving = false;

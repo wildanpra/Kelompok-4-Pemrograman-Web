@@ -10,6 +10,7 @@ const ContactsController = require("../controllers/ContactController");
 const DashboardController = require("../controllers/DashboardController");
 const AuthController = require("../controllers/AuthController");
 const auth = require("../middleware/auth");
+const authorize = require("../middleware/authorize");
 
 //Endpoint untuk mengakses halaman utama
 router.get("/", (req, res) => {
@@ -19,36 +20,39 @@ router.get("/", (req, res) => {
 router.post("/register", (req, res) => AuthController.register(req, res));
 router.post("/login", (req, res) => AuthController.login(req, res));
 
-router.get("/dashboard", auth, (req, res) =>
+// Semua route di bawah ini memerlukan otentikasi
+router.use(auth);
+
+router.get("/dashboard", (req, res) =>
   DashboardController.index(req, res),
 );
 
-router.get("/customers", auth, CustomerController.index);
-router.get("/customers/:id", auth, CustomerController.show);
-router.post("/customers", auth, CustomerController.store);
-router.put("/customers/:id", auth, CustomerController.update);
-router.delete("/customers/:id", auth, CustomerController.destroy);
+router.get("/customers", CustomerController.index);
+router.get("/customers/:id", CustomerController.show);
+router.post("/customers", CustomerController.store);
+router.put("/customers/:id", CustomerController.update);
+router.delete("/customers/:id", authorize('admin'), CustomerController.destroy);
 
 //Routing Contact
-router.get("/contacts", auth, ContactsController.index);
-router.get("/contacts/:id", auth, ContactsController.show);
-router.post("/contacts", auth, ContactsController.store);
-router.put("/contacts/:id", auth, ContactsController.update);
-router.delete("/contacts/:id", auth, ContactsController.destroy);
+router.get("/contacts", ContactsController.index);
+router.get("/contacts/:id", ContactsController.show);
+router.post("/contacts", ContactsController.store);
+router.put("/contacts/:id", ContactsController.update);
+router.delete("/contacts/:id", authorize('admin'), ContactsController.destroy);
 
 //Routing Activities
-router.get("/activities", auth, ActivitiesController.index);
-router.get("/activities/:id", auth, ActivitiesController.show);
-router.post("/activities", auth, ActivitiesController.store);
-router.put("/activities/:id", auth, ActivitiesController.update);
-router.delete("/activities/:id", auth, ActivitiesController.destroy);
+router.get("/activities", ActivitiesController.index);
+router.get("/activities/:id", ActivitiesController.show);
+router.post("/activities", ActivitiesController.store);
+router.put("/activities/:id", ActivitiesController.update);
+router.delete("/activities/:id", authorize('admin'), ActivitiesController.destroy);
 
 //Routing Leads
 router.get("/leads", LeadController.index);
 router.get("/leads/:id", LeadController.show);
 router.post("/leads", LeadController.store);
 router.put("/leads/:id", LeadController.update);
-router.delete("/leads/:id", LeadController.destroy);
+router.delete("/leads/:id", authorize('admin'), LeadController.destroy);
 
 //Routing deals
 router.get("/deals", DealController.index);

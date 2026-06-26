@@ -53,4 +53,30 @@ export class AuthService extends BaseService {
     if (!this.isBrowser()) return null;
     return localStorage.getItem('token');
   }
+
+  private decodeToken(): any | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = token.split('.')[1]; // ambil bagian payload
+      const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/')); // base64url -> JSON
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  getUserName(): string | null {
+    const decoded = this.decodeToken();
+    return decoded?.name ?? null;
+  }
+
+  getUserRole(): string | null {
+    const decoded = this.decodeToken();
+    return decoded?.role ?? null;
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'admin';
+  }
 }

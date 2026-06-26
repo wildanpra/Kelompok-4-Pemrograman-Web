@@ -16,6 +16,7 @@ import { UserService } from '../../service/user_services';
 import { Lead } from '../../models/Lead';
 import { Customer } from '../../models/Customer';
 import { User } from '../../models/User';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-leads',
@@ -52,7 +53,7 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
       title: ['', Validators.required],
       source: [''],
       notes: [''],
-      status: ['new'],
+      status: ['New'],
       assigned_to: [''],
     });
   }
@@ -117,7 +118,7 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   showCreate(): void {
     this.createForm.reset({
       customer_id: this.customersList.length ? this.customersList[0].id : '',
-      status: 'new',
+      status: 'New',
       assigned_to: this.usersList.length ? this.usersList[0].id : ''
     });
     this.errorMsg = '';
@@ -145,8 +146,16 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.leadService.create(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        window.location.href = '/leads';
-        this.cdr.detectChanges();
+        Swal.fire({
+          title: 'Berhasil',
+          text: 'Lead berhasil ditambahkan',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/leads';
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.isSaving = false;

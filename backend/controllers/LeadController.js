@@ -6,9 +6,9 @@ const { validateId, validateStore, validateUpdate } = require("../validation/lea
 
 const STAGE_MAP = {
   "new": null,
-  "contacted": "contacted",
-  "qualified": "qualified",
-  "lost": "lost"
+  "contacted": "Proposal",
+  "qualified": "Negotiation",
+  "lost": "Lost"
 }
 
 class LeadController {
@@ -45,7 +45,7 @@ class LeadController {
           const errors = validateStore(customer_id, title, status);
           if(errors) return res.status(400).json({success:false, errors});
           
-          const dealStage = STAGE_MAP[(status || 'New')];
+          const dealStage = STAGE_MAP[(status || 'New').toLowerCase()];
 
           await db.beginTransaction();
 
@@ -91,7 +91,7 @@ class LeadController {
       const errors =  validateUpdate(customer_id, title, status);
       if(errors) return res.status(400).json({success:false, errors});
       
-      const dealStage = STAGE_MAP[(status || 'New')];
+      const dealStage = STAGE_MAP[(status || 'New').toLowerCase()];
 
       await db.beginTransaction();
 

@@ -72,7 +72,7 @@ class AuthController {
       }
 
       const token = jwt.sign(
-        { id: user.id, role: user.role }, // Gunakan user.id (sesuai desc table Anda)
+        { id: user.id, name: user.name, role: user.role }, // Gunakan user.id dan user.name
         process.env.JWT_SECRET,
         { expiresIn: "1h" },
       );
