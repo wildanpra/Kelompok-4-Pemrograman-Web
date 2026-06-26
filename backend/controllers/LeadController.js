@@ -2,12 +2,14 @@ const db = require("../config/database");
 const LeadModel = require("../models/LeadModel");
 const DealModel = require("../models/DealModel");
 const { validateId, validateStore, validateUpdate } = require("../validation/leadValidation");
+const ActivitiesModel = require("../models/ActivitiesModel");
 
 
 const STAGE_MAP = {
   "new": null,
   "contacted": "Proposal",
   "qualified": "Negotiation",
+  "won": "Won",
   "lost": "Lost"
 }
 
@@ -58,6 +60,14 @@ class LeadController {
               assigned_to
           });
           const dealId = await DealModel.createFormLead(leadId, title, dealStage);
+
+          await ActivitiesModel.store({
+              customer_id,
+              type: 'other',
+              description: `Sistem: Lead baru dibuat dengan judul "${title}"`,
+              activity_date: new Date(),
+              created_by: req.user?.id || null
+          });
 
           await db.commit();
 
@@ -112,6 +122,31 @@ class LeadController {
       }
 
       await DealModel.updateStageByLeadId(id, dealStage, deal_value ?? null);
+
+      let activityType = 'other';
+      let desc = `Sistem: Lead "${title}" diperbarui.`;
+
+      if (status === 'Contacted') {
+        activityType = 'call';
+        desc = `Sales: Menghubungi prospek lead "${title}"`;
+      } else if (status === 'Qualified') {
+        activityType = 'meeting';
+        desc = `Sistem: Lead "${title}" lolos kualifikasi & masuk tahap Negosiasi.`;
+      } else if (status === 'Won') {
+        activityType = 'other';
+        desc = `Sistem: Proyek "${title}" BERHASIL (Won)! Kontrak disetujui.`;
+      } else if (status === 'Lost') {
+        activityType = 'note';
+        desc = `Sistem: Proyek "${title}" dinyatakan GAGAL (Lost). Catatan: ${notes || '-'}`;
+      }
+
+      await ActivitiesModel.store({
+          customer_id,
+          type: activityType,
+          description: desc,
+          activity_date: new Date(),
+          created_by: req.user?.id || null
+      });
       
       await db.commit();
 
