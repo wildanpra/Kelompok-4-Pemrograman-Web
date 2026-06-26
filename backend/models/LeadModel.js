@@ -6,10 +6,14 @@ const findAll = async () => {
   const [rows] = await db.query(
     `SELECT l.id, l.customer_id, l.title, l.source, l.notes, l.status, l.assigned_to, l.created_at,
             c.name AS customer_name,
-            u.name AS assigned_to_name
+            u.name AS assigned_to_name,
+            d.id AS deal_id,
+            d.stage AS deal_stage,
+            d.value AS deal_value
      FROM leads l
      LEFT JOIN customers c ON l.customer_id = c.id
      LEFT JOIN users u ON l.assigned_to = u.id
+     LEFT JOIN deals d ON l.id = d.lead_id
      ORDER BY l.created_at DESC`,
   );
   return rows;
@@ -21,9 +25,13 @@ const findById = async (id) => {
     `SELECT l.id, l.title, l.source, l.notes, l.status, l.assigned_to, l.created_at,
             c.id      AS customer_id,
             c.name    AS customer_name,
-            c.company AS customer_company
+            c.company AS customer_company,
+            d.id      AS deal_id,
+            d.stage   AS deal_stage,
+            d.value   AS deal_value
      FROM   leads l
      LEFT JOIN customers c ON l.customer_id = c.id
+     LEFT JOIN deals     d ON l.id = d.lead_id
      WHERE  l.id = ?`,
     [id]
   );

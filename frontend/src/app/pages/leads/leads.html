@@ -5,41 +5,54 @@
       <h5 class="mb-0">Table Leads</h5>
       <button class="btn btn-primary btn-sm" (click)="showCreate()">Tambah Lead</button>
     </div>
+    <!-- Filter Status Leads -->
+    <div class="card-body py-3 border-bottom bg-light">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="text-muted small fw-semibold me-1">Filter Status:</span>
+        <button class="btn btn-sm"
+          [ngClass]="selectedStatus === '' ? 'btn-dark' : 'btn-outline-dark'"
+          (click)="filterByStatus('')">Semua</button>
+        <button class="btn btn-sm"
+          [ngClass]="selectedStatus === 'New' ? 'btn-secondary' : 'btn-outline-secondary'"
+          (click)="filterByStatus('New')">New</button>
+        <button class="btn btn-sm"
+          [ngClass]="selectedStatus === 'Contacted' ? 'btn-info text-white' : 'btn-outline-info'"
+          (click)="filterByStatus('Contacted')">Contacted</button>
+        <button class="btn btn-sm"
+          [ngClass]="selectedStatus === 'Qualified' ? 'btn-success' : 'btn-outline-success'"
+          (click)="filterByStatus('Qualified')">Qualified</button>
+        <button class="btn btn-sm"
+          [ngClass]="selectedStatus === 'Lost' ? 'btn-danger' : 'btn-outline-danger'"
+          (click)="filterByStatus('Lost')">Lost</button>
+      </div>
+    </div>
     <div class="table-responsive text-nowrap">
       <table class="table">
         <thead>
           <tr>
-            <th>No</th>
-            <th>ID</th>
-            <th>Customer</th>
             <th>Title</th>
+            <th>Customer</th>
             <th>Source</th>
-            <th>Notes</th>
-            <th>Status</th>
-            <th>Assigned To</th>
-            <th>Created At</th>
-            <th>Action</th>
+            <th>Status Lead</th>
+            <th>Stage Deal</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-          <tr *ngFor="let lead of leads; let i = index">
-            <td>{{ i + 1 }}</td>
-            <td>{{ lead.id }}</td>
-            <td>{{ lead.customer_name || lead.customer_id }}</td>
-            <td>{{ lead.title }}</td>
-            <td>{{ lead.source }}</td>
-            <td>{{ lead.notes }}</td>
-            <td>{{ lead.status }}</td>
-            <td>{{ lead.assigned_to_name || lead.assigned_to || '-' }}</td>
-            <td>{{ lead.created_at }}</td>
+          <tr *ngFor="let l of getFilteredLeads()">
+            <td>{{ l.title }}</td>
+            <td>{{ l.customer_name || '-' }}</td>
+            <td>{{ l.source || '-' }}</td>
+            <td>{{ l.status }}</td>
+            <td>{{ l.deal_stage || 'Pending' }}</td>
             <td>
-              <button class="btn btn-warning btn-sm" (click)="showEditById(lead.id)">Edit</button>
+              <button class="btn btn-warning btn-sm me-1" (click)="showEditById(l.id)">Edit</button>
               <button
                 *ngIf="isAdmin"
-                class="btn btn-danger btn-sm ms-1"
-                (click)="deleteLead(lead.id)"
+                class="btn btn-danger btn-sm"
+                (click)="deleteLead(l.id)"
               >
-                Delete
+                Hapus
               </button>
             </td>
           </tr>
@@ -152,101 +165,76 @@
   </div>
 </div>
 
-<div *ngIf="view === 'edit'">
+<div [hidden]="view !== 'edit'">
   <div class="container-fluid px-4">
-    <div class="d-flex align-items-center my-4 gap-3">
-      <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">Kembali</button>
-      <h1 class="mb-0 fs-4 fw-bold">Edit Lead</h1>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-body p-4">
+    <h1 class="mt-4">Edit Lead</h1>
+    <div class="card shadow-lg border-0 rounded-lg mt-4">
+      <div class="card-header">
+        <h3 class="text-center font-weight-light my-4">Form Edit Lead</h3>
+      </div>
+      <div class="card-body">
         <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
-
         <form [formGroup]="editForm" (ngSubmit)="submitUpdate()">
-          <div class="row g-3">
+          <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label">Customer <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="customer_id">
-                <option *ngFor="let cust of customersList" [value]="cust.id">
-                  {{ cust.name }} ({{ cust.company || 'No Company' }})
-                </option>
-              </select>
-              <div
-                *ngIf="editForm.get('customer_id')?.invalid && editForm.get('customer_id')?.touched"
-                class="text-danger small mt-1"
-              >
-                Customer wajib dipilih
+              <div class="form-floating mb-3">
+                <select class="form-select" id="editCustomer" formControlName="customer_id">
+                  <option value="">-- Pilih Customer --</option>
+                  <option *ngFor="let c of customersList" [value]="c.id">{{ c.name }}</option>
+                </select>
+                <label for="editCustomer">Customer</label>
               </div>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Title <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="title"
-                placeholder="Title lead"
-              />
-              <div
-                *ngIf="editForm.get('title')?.invalid && editForm.get('title')?.touched"
-                class="text-danger small mt-1"
-              >
-                Title wajib diisi
+              <div class="form-floating mb-3">
+                <input class="form-control" id="editTitle" type="text" placeholder="Title" formControlName="title" />
+                <label for="editTitle">Title</label>
               </div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Source</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="source"
-                placeholder="Source lead (e.g. Website, Referral)"
-              />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Status</label>
-              <select class="form-select" formControlName="status">
-                <option value="New">New</option>
-                <option value="Contacted">Contacted</option>
-                <option value="Qualified">Qualified</option>
-                <option value="Lost">Lost</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Assigned To</label>
-              <select class="form-select" formControlName="assigned_to">
-                <option *ngFor="let u of usersList" [value]="u.id">
-                  {{ u.name }} ({{ u.role }})
-                </option>
-              </select>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Notes</label>
-              <textarea
-                class="form-control"
-                formControlName="notes"
-                rows="3"
-                placeholder="Notes..."
-              ></textarea>
             </div>
           </div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="editForm.invalid || isSaving"
-            >
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input class="form-control" id="editSource" type="text" placeholder="Source" formControlName="source" />
+                <label for="editSource">Source</label>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-floating">
+                <select class="form-select" id="editStatus" formControlName="status">
+                  <option value="New">New</option>
+                  <option value="Contacted">Contacted</option>
+                  <option value="Qualified">Qualified</option>
+                  <option value="Lost">Lost</option>
+                </select>
+                <label for="editStatus">Status Lead</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input class="form-control" id="editDealValue" type="number" placeholder="0" formControlName="deal_value" />
+                <label for="editDealValue">Nilai Deal (Rp)</label>
+              </div>
+              <small class="text-muted ms-1">Otomatis update ke tabel deals</small>
+            </div>
+          </div>
+
+          <div class="form-floating mb-3">
+            <textarea class="form-control" id="editNotes" placeholder="Notes" style="height: 100px" formControlName="notes"></textarea>
+            <label for="editNotes">Notes</label>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSaving">
               {{ isSaving ? 'Menyimpan...' : 'Update' }}
             </button>
-            <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
-              Batal
-            </button>
+            <button type="button" class="btn btn-danger" (click)="backToList()">Batal</button>
           </div>
         </form>
       </div>

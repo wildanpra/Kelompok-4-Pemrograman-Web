@@ -17,6 +17,12 @@ export class LeadService extends BaseService {
       .pipe(catchError((err) => this.handleError(err)));
   }
 
+  getById(id: number): Observable<ApiResponse<Lead>> {
+    return this.http
+      .get<ApiResponse<Lead>>(`${this.apiUrl}/leads/${id}`, { headers: this.getHeaders() })
+      .pipe(catchError((err) => this.handleError(err)));
+  }
+
   create(data: Partial<Lead>): Observable<ApiResponse<{ id: number }>> {
     return this.http
       .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/leads`, data, {

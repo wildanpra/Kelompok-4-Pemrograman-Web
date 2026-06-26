@@ -42,6 +42,7 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   errorMsg: string = '';
   successMsg: string = '';
   needsTableInit: boolean = false;
+  selectedStatus: string = '';
 
   constructor(
     private leadService: LeadService,
@@ -69,6 +70,7 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
       notes: [''],
       status: ['New'],
       assigned_to: [''],
+      deal_value: [null],
     });
   }
 
@@ -195,7 +197,15 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     }
     this.selectedLeadId = lead.id!;
     this.editForm.reset();
-    this.editForm.patchValue(lead);
+    this.editForm.patchValue({
+      customer_id: lead.customer_id,
+      title: lead.title,
+      source: lead.source,
+      notes: lead.notes,
+      status: lead.status,
+      assigned_to: lead.assigned_to,
+      deal_value: lead.deal_value ?? null,
+    });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'edit';
@@ -271,5 +281,19 @@ export class LeadsComponent implements OnInit, AfterViewInit, AfterViewChecked {
         });
       }
     });
+  }
+
+  filterByStatus(status: string): void {
+    this.selectedStatus = status;
+    this.cdr.detectChanges();
+  }
+
+  getFilteredLeads(): Lead[] {
+    if (!this.selectedStatus) {
+      return this.leads;
+    }
+    return this.leads.filter(
+      (l) => (l.status || '').toLowerCase() === this.selectedStatus.toLowerCase()
+    );
   }
 }
