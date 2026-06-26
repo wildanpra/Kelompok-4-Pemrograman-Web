@@ -4,7 +4,11 @@ const db = require("../config/database");
 //menampilkan seluruh data table customers
 const findAll = async () => {
   const [rows] = await db.query(
-    `Select id, customer_id, name, email, phone, position, created_at FROM contacts ORDER BY created_at DESC`,
+    `SELECT co.id, co.customer_id, co.name, co.email, co.phone, co.position, co.created_at,
+            cu.name AS customer_name
+     FROM contacts co
+     LEFT JOIN customers cu ON co.customer_id = cu.id
+     ORDER BY co.created_at DESC`,
   );
   return rows;
 };
