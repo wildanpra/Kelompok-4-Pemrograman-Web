@@ -8,6 +8,7 @@ import { ActivitiesComponent } from './pages/activities/activities';
 import { LeadsComponent } from './pages/leads/leads';
 import { DealsComponent } from './pages/deals/deals';
 import { Login } from './pages/auth/login/login';
+import { Register } from './pages/auth/register/register';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 
@@ -15,6 +16,11 @@ export const routes: Routes = [
   {
     path: 'login',
     component: Login,
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'register',
+    component: Register,
     canActivate: [guestGuard],
   },
   {

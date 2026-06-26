@@ -29,6 +29,10 @@ export class AuthService extends BaseService {
     );
   }
 
+  register(data: any) {
+    return this.http.post(`${this.apiUrl}/register`, data);
+  }
+
   //ubah bagian logout
   logout(): void {
     // Hapus token hanya di browser, agar aman saat dijalankan di server
