@@ -6,6 +6,7 @@ export interface Contact {
   phone: string;
   position: string;
   created_at?: string;
+  customer_name?: string;
 }
 
 export interface ApiResponse<T> {

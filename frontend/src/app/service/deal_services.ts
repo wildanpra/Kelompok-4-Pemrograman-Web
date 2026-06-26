@@ -7,8 +7,10 @@ import { Deal, ApiResponse } from '../models/Deal';
 
 @Injectable({ providedIn: 'root' })
 export class DealService extends BaseService {
-  // Pastikan constructor menerima PLATFORM_ID untuk diteruskan ke super (BaseService)
-  constructor(http: HttpClient, @Inject(PLATFORM_ID) platformId: Object) {
+  constructor(
+    http: HttpClient,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
     super(http, platformId);
   }
 
@@ -18,11 +20,9 @@ export class DealService extends BaseService {
       .pipe(catchError(this.handleError));
   }
 
-  create(data: Partial<Deal>): Observable<ApiResponse<{ id: number }>> {
+  getById(id: number): Observable<ApiResponse<Deal>> {
     return this.http
-      .post<ApiResponse<{ id: number }>>(`${this.apiUrl}/deals`, data, {
-        headers: this.getHeaders(),
-      })
+      .get<ApiResponse<Deal>>(`${this.apiUrl}/deals/${id}`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 }

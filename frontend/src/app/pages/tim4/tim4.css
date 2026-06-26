@@ -1,0 +1,65 @@
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-text {
+  font-size: 22px;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fs-tiny {
+  font-size: 11px;
+}
+
+/* Light background color utilities matching bootstrap themes */
+.bg-light-primary {
+  background-color: rgba(105, 108, 255, 0.12);
+}
+.bg-light-success {
+  background-color: rgba(113, 221, 55, 0.12);
+}
+.bg-light-danger {
+  background-color: rgba(255, 62, 29, 0.12);
+}
+.bg-light-warning {
+  background-color: rgba(255, 171, 0, 0.12);
+}
+.bg-light-info {
+  background-color: rgba(3, 195, 236, 0.12);
+}
+.bg-light-dark {
+  background-color: rgba(35, 52, 70, 0.12);
+}
+.bg-light-secondary {
+  background-color: rgba(133, 146, 163, 0.12);
+}

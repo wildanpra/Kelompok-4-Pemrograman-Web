@@ -1,130 +1,63 @@
-<div *ngIf="view === 'list'">
-  <!-- Basic Bootstrap Table -->
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">Table Deals</h5>
-      <button class="btn btn-primary btn-sm" (click)="showCreate()">Tambah Deal</button>
-    </div>
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Data Deals</h1>
 
-    <div class="table-responsive text-nowrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>ID</th>
-            <th>Lead ID</th>
-            <th>Title</th>
-            <th>Value</th>
-            <th>Stage</th>
-            <th>Closed At</th>
-            <th>Created At</th>
-          </tr>
-        </thead>
-        <tbody class="table-border-bottom-0">
-          <tr *ngFor="let deal of deals; let i = index">
-            <td>{{ i + 1 }}</td>
-            <td>{{ deal.id }}</td>
-            <td>{{ deal.lead_id }}</td>
-            <td>{{ deal.title }}</td>
-            <td>{{ deal.value }}</td>
-            <td>{{ deal.stage }}</td>
-            <td>{{ deal.closed_at }}</td>
-            <td>{{ deal.created_at }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-sm"
+      [ngClass]="selectedStage === '' ? 'btn-dark' : 'btn-outline-dark'"
+      (click)="filterByStage('')">Semua</button>
+    <button *ngFor="let s of stages"
+      class="btn btn-sm"
+      [ngClass]="selectedStage === s ? getBadgeClass(s) : 'btn-outline-secondary'"
+      (click)="filterByStage(s)">{{ s }}</button>
   </div>
-  <!--/ Basic Bootstrap Table -->
-</div>
 
-<div *ngIf="view === 'create'">
-  <div class="container-fluid px-4">
-    <div class="d-flex align-items-center my-4 gap-3">
-      <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">Kembali</button>
-      <h1 class="mb-0 fs-4 fw-bold">Tambah Deal</h1>
-    </div>
+  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
 
-    <div class="card mb-4">
-      <div class="card-body p-4">
-        <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
+  <div *ngIf="isLoading" class="text-center p-5">
+    <p class="text-muted">Memuat data...</p>
+  </div>
 
-        <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Lead <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="lead_id">
-                <option *ngFor="let lead of leadsList" [value]="lead.id">
-                  {{ lead.title }} (ID: {{ lead.id }})
-                </option>
-              </select>
-              <div
-                *ngIf="createForm.get('lead_id')?.invalid && createForm.get('lead_id')?.touched"
-                class="text-danger small mt-1"
-              >
-                Lead wajib dipilih
-              </div>
-            </div>
+  <div *ngIf="!isLoading" class="row g-3">
+    <div class="col-md-3" *ngFor="let s of stages">
+      <div class="card h-100">
+        <div class="card-header text-center py-2" [ngClass]="getHeaderClass(s)">
+          <strong>{{ s }}</strong>
+          <div class="small mt-1">
+            {{ getDealsByStage(s).length }} deal ·
+            {{ getTotalByStage(s) | currency:'Rp ':'code':'1.0-0' }}
+          </div>
+        </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Title <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="title"
-                placeholder="Title deal"
-              />
-              <div
-                *ngIf="createForm.get('title')?.invalid && createForm.get('title')?.touched"
-                class="text-danger small mt-1"
-              >
-                Title wajib diisi
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Value</label>
-              <input
-                type="number"
-                class="form-control"
-                formControlName="value"
-                placeholder="Deal Value"
-              />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Stage</label>
-              <select class="form-select" formControlName="stage">
-                <option value="Proposal">Proposal</option>
-                <option value="Negotiation">Negotiation</option>
-                <option value="Won">Won</option>
-                <option value="Lost">Lost</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Closed At</label>
-              <input
-                type="date"
-                class="form-control"
-                formControlName="closed_at"
-              />
-            </div>
+        <div class="card-body p-2" style="min-height: 300px;">
+          <div *ngIf="getDealsByStage(s).length === 0"
+            class="text-center text-muted small py-4">
+            Tidak ada deals
           </div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="createForm.invalid || isSaving"
-            >
-              {{ isSaving ? 'Menyimpan...' : 'Simpan' }}
-            </button>
-            <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
-              Batal
-            </button>
+          <div *ngFor="let d of getDealsByStage(s)"
+            class="card mb-2 border shadow-sm">
+            <div class="card-body p-3">
+              <div class="mb-1 small">
+                <span class="text-muted fw-semibold">Nama Deal:</span>
+                <span class="text-dark fw-semibold ms-1">{{ d.title }}</span>
+              </div>
+              <div class="mb-1 small">
+                <span class="text-muted">Customer:</span>
+                <span class="text-secondary ms-1">{{ d.customer_name || '-' }}</span>
+              </div>
+              <div class="mb-1 small">
+                <span class="text-muted">Lead:</span>
+                <span class="text-secondary ms-1">{{ d.lead_title || '-' }}</span>
+              </div>
+              <div class="mt-2 pt-2 border-top small">
+                <span class="text-muted fw-semibold">Nilai Deal:</span>
+                <span class="fw-bold text-success ms-1">
+                  {{ (d.value || 0) | currency:'Rp ':'code':'1.0-0' }}
+                </span>
+              </div>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>

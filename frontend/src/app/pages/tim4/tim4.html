@@ -1,0 +1,71 @@
+<div class="container-fluid px-4 my-4">
+  <!-- Header Title -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="mb-1 fw-bold text-primary">Kelompok 4 - Pemrograman Web</h3>
+      <p class="text-muted mb-0">Profil Pengembang & Kolaborator Aplikasi</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a
+        href="https://github.com/wildanpra/Kelompok-4-Pemrograman-Web"
+        target="_blank"
+        class="btn btn-outline-dark btn-sm rounded-pill px-3"
+      >
+        <i class="bx bxl-github me-1 align-middle fs-5"></i> GitHub Repo
+      </a>
+      <span class="badge bg-label-primary px-3 py-2 rounded-pill fw-bold">
+        <i class="bx bx-code-alt me-1 align-middle"></i> 7 Anggota Tim
+      </span>
+    </div>
+  </div>
+
+  <!-- Team Grid -->
+  <div class="row g-4">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-4" *ngFor="let member of teamMembers">
+      <div class="card h-100 border-0 shadow-sm card-hover-effect">
+        <div class="card-body p-4 text-center d-flex flex-column justify-content-between">
+          <div>
+            <!-- Avatar Section -->
+            <div class="d-flex justify-content-center mb-3">
+              <div class="avatar-wrapper">
+                <div class="avatar-circle bg-light-{{ member.avatarColor }}">
+                  <span class="avatar-text text-{{ member.avatarColor }} fw-bold">
+                    {{ member.initials }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Name and NIP -->
+            <h5 class="fw-bold mb-1 text-dark">{{ member.name }}</h5>
+            <div class="d-flex align-items-center justify-content-center gap-1 mb-3 text-muted small">
+              <i class="bx bx-id-card fs-6"></i>
+              <span>NIP. {{ member.nip }}</span>
+            </div>
+
+            <!-- Badges -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+              <span class="badge bg-label-{{ member.avatarColor }} px-2 py-1 rounded">
+                {{ member.position }}
+              </span>
+              <span class="badge bg-label-secondary px-2 py-1 rounded">
+                Gol. {{ member.classGroup }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bottom Info / Meta -->
+          <div>
+            <hr class="my-3 opacity-50">
+            <div class="d-flex justify-content-center align-items-center text-muted small px-1">
+              <div class="d-flex align-items-center gap-1">
+                <i class="bx bx-buildings text-secondary"></i>
+                <span class="fw-bold text-dark">Unit: {{ member.unit }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

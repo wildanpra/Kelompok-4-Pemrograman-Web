@@ -10,18 +10,18 @@
         <thead>
           <tr>
             <th>No</th>
-            <th>customer_id</th>
-            <th>name</th>
-            <th>email</th>
-            <th>phone</th>
-            <th>position</th>
-            <th>action</th>
+            <th>Customer</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Position</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
           <tr *ngFor="let c of contacts; let i = index">
             <td>{{ i + 1 }}</td>
-            <td>{{ c.customer_id }}</td>
+            <td>{{ c.customer_name || c.customer_id }}</td>
             <td>{{ c.name }}</td>
             <td>{{ c.email }}</td>
             <td>{{ c.phone }}</td>
