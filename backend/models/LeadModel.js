@@ -1,10 +1,7 @@
 //file models yang berguna untuk menerjemahkan isi table
 const db = require("../config/database");
 
-//menampilkan seluruh data table lead
-const findAll = async () => {
-  const [rows] = await db.query(
-    `SELECT l.id, l.customer_id, l.title, l.source, l.notes, l.status, l.assigned_to, l.created_at,
+const LEAD_LIST_SELECT = `SELECT l.id, l.customer_id, l.title, l.source, l.notes, l.status, l.assigned_to, l.created_at,
             c.name AS customer_name,
             u.name AS assigned_to_name,
             d.id AS deal_id,
@@ -13,8 +10,24 @@ const findAll = async () => {
      FROM leads l
      LEFT JOIN customers c ON l.customer_id = c.id
      LEFT JOIN users u ON l.assigned_to = u.id
-     LEFT JOIN deals d ON l.id = d.lead_id
+     LEFT JOIN deals d ON l.id = d.lead_id`;
+
+//menampilkan seluruh data table lead
+const findAll = async () => {
+  const [rows] = await db.query(
+    `${LEAD_LIST_SELECT}
      ORDER BY l.created_at DESC`,
+  );
+  return rows;
+};
+
+// menampilkan lead yang hanya di-assign ke user tertentu
+const findByAssignedUser = async (userId) => {
+  const [rows] = await db.query(
+    `${LEAD_LIST_SELECT}
+     WHERE l.assigned_to = ?
+     ORDER BY l.created_at DESC`,
+    [userId]
   );
   return rows;
 };
@@ -82,4 +95,4 @@ const destroy = async(id) =>{
 return affectedRows;
 };
 
-module.exports = { findAll, findById, store, update, destroy };
+module.exports = { findAll, findByAssignedUser, findById, store, update, destroy };

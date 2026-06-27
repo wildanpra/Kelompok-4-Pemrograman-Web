@@ -45,7 +45,15 @@ export class AuthService extends BaseService {
   isLoggedIn(): boolean {
     // Di server tidak ada localStorage -> anggap belum login
     if (!this.isBrowser()) return false;
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    if (this.isTokenExpired()) {
+      this.logout();
+      return false;
+    }
+
+    return true;
   }
 
   //tambahkan ini
@@ -74,6 +82,12 @@ export class AuthService extends BaseService {
   getUserRole(): string | null {
     const decoded = this.decodeToken();
     return decoded?.role ?? null;
+  }
+
+  isTokenExpired(): boolean {
+    const decoded = this.decodeToken();
+    if (!decoded?.exp) return true;
+    return decoded.exp * 1000 <= Date.now();
   }
 
   isAdmin(): boolean {

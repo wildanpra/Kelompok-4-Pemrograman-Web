@@ -108,7 +108,7 @@
         <div>Activities</div>
       </a>
     </li>
-    <li class="menu-item" routerLinkActive="active">
+    <li class="menu-item" routerLinkActive="active" *ngIf="isAdmin()">
       <a routerLink="/user" class="menu-link">
         <i class="menu-icon tf-icons bx bx-user"></i>
         <div>Users</div>

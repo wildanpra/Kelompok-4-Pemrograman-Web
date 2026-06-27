@@ -37,6 +37,7 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
   editForm: FormGroup;
   selectedCustomerId: number | null = null;
   isAdmin: boolean = false;
+  isSales: boolean = false;
 
   constructor(
     private customerService: CustomerService,
@@ -67,6 +68,7 @@ export class CustomerComponent implements OnInit, AfterViewInit, AfterViewChecke
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
+    this.isSales = this.authService.getUserRole() === 'sales';
     if (isPlatformBrowser(this.platformId)) {
       this.loadCustomers();
     } else {

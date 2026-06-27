@@ -3,12 +3,16 @@ const CustomerModels = require('../models/CustomerModels');
 const ActivitiesModel = require('../models/ActivitiesModel');
 const { validateId, validateStore, validateUpdate } = require('../validation/customerValidation');
 
-
+const isAdmin = (user) => user?.role === 'admin';
+const isStaff = (user) => user?.role === 'staff';
+const isSales = (user) => user?.role === 'sales';
 
 class CustomerController {
     async index(req, res) {
         try {
-            const customers = await CustomerModels.findAll();
+            const customers = isSales(req.user)
+                ? await CustomerModels.findAssignedToUser(req.user.id)
+                : await CustomerModels.findAll();
             res.json({
                 message: "Data Customer berhasil diambil",
                 status: "success",
@@ -39,6 +43,12 @@ class CustomerController {
                     status: "error"
                 });
             }
+            if (isSales(req.user) && !(await CustomerModels.hasAssignedLead(id, req.user.id))) {
+                return res.status(403).json({
+                    message: "Anda tidak memiliki akses ke customer ini",
+                    status: "error"
+                });
+            }
             res.json({
                 message: "Data Customer berhasil diambil",
                 status: "success",
@@ -62,6 +72,13 @@ class CustomerController {
     async store(req, res, next){
         // res.send("Menambahkan data");
         try{
+            if (isSales(req.user)) {
+                return res.status(403).json({
+                    message: "Sales tidak memiliki akses untuk menambah customer",
+                    status: "error"
+                });
+            }
+
             const {name, email, phone, company, status, created_by} = req.body;
             const errors = validateStore(name, email, phone, company, status);
             if(errors){
@@ -139,6 +156,13 @@ class CustomerController {
             if(!existing){
                 return res.status(404).json({
                     message: "Data Customer tidak ditemukan",
+                    status: "error"
+                });
+            }
+
+            if (!isAdmin(req.user) && !isStaff(req.user)) {
+                return res.status(403).json({
+                    message: "Anda tidak memiliki akses untuk mengubah customer",
                     status: "error"
                 });
             }

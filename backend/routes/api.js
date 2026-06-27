@@ -59,9 +59,9 @@ router.get("/deals", DealController.index);
 router.get("/deals/:id", DealController.show);
 router.post("/deals", DealController.store);
 
-//Routing Users
-router.get("/users", UsersController.index);
-router.get("/users/:id", UsersController.show);
-router.post("/users", UsersController.store);
+//Routing Users - hanya admin yang boleh melihat/mengelola akun
+router.get("/users", authorize('admin'), UsersController.index);
+router.get("/users/:id", authorize('admin'), UsersController.show);
+router.post("/users", authorize('admin'), UsersController.store);
 
 module.exports = router;

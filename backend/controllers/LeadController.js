@@ -13,10 +13,23 @@ const STAGE_MAP = {
   "lost": "Lost"
 }
 
+const ADMIN_ROLE = "admin";
+
+const canSeeAllLeads = (user) => user?.role === ADMIN_ROLE;
+
+const canAccessLead = (user, lead) => {
+  if (!lead) return false;
+  if (canSeeAllLeads(user)) return true;
+  return Number(lead.assigned_to) === Number(user?.id);
+};
+
 class LeadController {
   async index(req, res) {
     try {
-      const data = await LeadModel.findAll();
+      const data = canSeeAllLeads(req.user)
+        ? await LeadModel.findAll()
+        : await LeadModel.findByAssignedUser(req.user.id);
+
       res.json({ success: true, total: data.length, data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -35,6 +48,13 @@ class LeadController {
         return res
           .status(404)
           .json({ success: false, message: "Lead tidak ditemukan" });
+
+      if (!canAccessLead(req.user, data)) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Anda tidak memiliki akses ke lead ini" });
+      }
+
       res.json({ success: true, data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -63,7 +83,7 @@ class LeadController {
 
           await ActivitiesModel.store({
               customer_id,
-              type: 'other',
+              type: 'Note',
               description: `Sistem: Lead baru dibuat dengan judul "${title}"`,
               activity_date: new Date(),
               created_by: req.user?.id || null
@@ -96,6 +116,14 @@ class LeadController {
       if(idError){
         return res.status(400).json({success: false, message: idError});
       }
+
+      const existingLead = await LeadModel.findById(id);
+      if (!existingLead) {
+        return res.status(404).json({success:false, message:'Lead tidak ditemukan'});
+      }
+      if (!canAccessLead(req.user, existingLead)) {
+        return res.status(403).json({success:false, message:'Anda tidak memiliki akses ke lead ini'});
+      }
       
       const { customer_id, title, source, notes, status, assigned_to, deal_value } = req.body;
       const errors =  validateUpdate(customer_id, title, status);
@@ -123,20 +151,20 @@ class LeadController {
 
       await DealModel.updateStageByLeadId(id, dealStage, deal_value ?? null);
 
-      let activityType = 'other';
+      let activityType = 'Note';
       let desc = `Sistem: Lead "${title}" diperbarui.`;
 
       if (status === 'Contacted') {
-        activityType = 'call';
+        activityType = 'Call';
         desc = `Sales: Menghubungi prospek lead "${title}"`;
       } else if (status === 'Qualified') {
-        activityType = 'meeting';
+        activityType = 'Meeting';
         desc = `Sistem: Lead "${title}" lolos kualifikasi & masuk tahap Negosiasi.`;
       } else if (status === 'Won') {
-        activityType = 'other';
+        activityType = 'Note';
         desc = `Sistem: Proyek "${title}" BERHASIL (Won)! Kontrak disetujui.`;
       } else if (status === 'Lost') {
-        activityType = 'note';
+        activityType = 'Note';
         desc = `Sistem: Proyek "${title}" dinyatakan GAGAL (Lost). Catatan: ${notes || '-'}`;
       }
 
@@ -171,6 +199,14 @@ class LeadController {
 
       const idError = validateId(id);
       if (idError) return res.status(400).json({ success: false, message: idError });
+
+      const existingLead = await LeadModel.findById(id);
+      if (!existingLead) {
+        return res.status(404).json({ success: false, message: 'Lead tidak ditemukan' });
+      }
+      if (!canAccessLead(req.user, existingLead)) {
+        return res.status(403).json({ success: false, message: 'Anda tidak memiliki akses ke lead ini' });
+      }
 
       await db.beginTransaction();
 

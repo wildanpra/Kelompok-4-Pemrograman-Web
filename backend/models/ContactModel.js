@@ -1,22 +1,47 @@
 //file models yang berguna untuk menerjemahkan isi table
 const db = require("../config/database");
 
-//menampilkan seluruh data table customers
-const findAll = async () => {
-  const [rows] = await db.query(
-    `SELECT co.id, co.customer_id, co.name, co.email, co.phone, co.position, co.created_at,
+const CONTACT_SELECT = `SELECT co.id, co.customer_id, co.name, co.email, co.phone, co.position, co.created_at,
             cu.name AS customer_name
      FROM contacts co
-     LEFT JOIN customers cu ON co.customer_id = cu.id
+     LEFT JOIN customers cu ON co.customer_id = cu.id`;
+
+//menampilkan seluruh data table contacts
+const findAll = async () => {
+  const [rows] = await db.query(
+    `${CONTACT_SELECT}
      ORDER BY co.created_at DESC`,
   );
   return rows;
 };
 
-//menampilkan by id dari table customers
+const findByAssignedLeadUser = async (userId) => {
+  const [rows] = await db.query(
+    `${CONTACT_SELECT}
+     INNER JOIN leads l ON l.customer_id = co.customer_id
+     WHERE l.assigned_to = ?
+     ORDER BY co.created_at DESC`,
+    [userId]
+  );
+  return rows;
+};
+
+//menampilkan by id dari table contacts
 const findById = async (id) => {
-  const [rows] = await db.query(`Select * FROM contacts WHERE id = ?`, [id]);
+  const [rows] = await db.query(`${CONTACT_SELECT} WHERE co.id = ?`, [id]);
   return rows[0] ?? null;
+};
+
+const canAccessForAssignedLead = async (contactId, userId) => {
+  const [rows] = await db.query(
+    `SELECT 1
+     FROM contacts co
+     INNER JOIN leads l ON l.customer_id = co.customer_id
+     WHERE co.id = ? AND l.assigned_to = ?
+     LIMIT 1`,
+    [contactId, userId]
+  );
+  return rows.length > 0;
 };
 
 //memasukkan create
@@ -60,7 +85,9 @@ const destroy = async (id) =>{
 
 module.exports = {
   findAll,
+  findByAssignedLeadUser,
   findById,
+  canAccessForAssignedLead,
   store,
   update,
   destroy

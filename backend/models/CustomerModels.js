@@ -10,6 +10,25 @@ const findAll = async () => {
     }
 }
 
+const findAssignedToUser = async (userId) => {
+    const [rows] = await db.query(`
+        SELECT DISTINCT c.id, c.name, c.email, c.phone, c.company, c.status
+        FROM customers c
+        INNER JOIN leads l ON l.customer_id = c.id
+        WHERE l.assigned_to = ?
+        ORDER BY c.id DESC
+    `, [userId]);
+    return rows;
+}
+
+const hasAssignedLead = async (customerId, userId) => {
+    const [rows] = await db.query(
+        `SELECT 1 FROM leads WHERE customer_id = ? AND assigned_to = ? LIMIT 1`,
+        [customerId, userId]
+    );
+    return rows.length > 0;
+}
+
 const findById = async (id) => {
     try{
         const query = "SELECT * FROM customers WHERE id = ?";
@@ -21,7 +40,7 @@ const findById = async (id) => {
 }
 
 //menambahkan data customers
-const store = async({name, email, phone, company, status, created_by}) =>{ // parameter sesuaikan dengan kolom yang ada di table
+const store = async({name, email, phone, company, status, created_by}) =>{
     const [{insertId}] = await db.query(
     `INSERT INTO customers (name, email, phone, company, status, created_by )
     VALUES (?, ?, ?, ?, ?, ?)
@@ -57,6 +76,8 @@ const destroy = async (id) => {
 
 module.exports = {
     findAll,
+    findAssignedToUser,
+    hasAssignedLead,
     findById,
     store,
     update,

@@ -1,9 +1,19 @@
 const DealModel = require("../models/DealModel");
 const { validateId } = require("../validation/dealValidation");
+
+const isAdmin = (user) => user?.role === 'admin';
+const canAccessDeal = (user, deal) => {
+  if (!deal) return false;
+  if (isAdmin(user)) return true;
+  return Number(deal.assigned_to) === Number(user?.id);
+};
+
 class DealController {
   async index(req, res) {
     try {
-      const data = await DealModel.findAll();
+      const data = isAdmin(req.user)
+        ? await DealModel.findAll()
+        : await DealModel.findByAssignedUser(req.user.id);
       res.json({ success: true, total: data.length, data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -22,6 +32,11 @@ class DealController {
         return res
           .status(404)
           .json({ success: false, message: "Deal tidak ditemukan" });
+
+      if (!canAccessDeal(req.user, data)) {
+        return res.status(403).json({ success: false, message: "Anda tidak memiliki akses ke deal ini" });
+      }
+
       res.json({ success: true, data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -29,6 +44,10 @@ class DealController {
   }
   async store(req, res) {
     try {
+      if (!isAdmin(req.user)) {
+        return res.status(403).json({ success: false, message: "Hanya admin yang dapat membuat deal manual" });
+      }
+
       const { lead_id, title, value, stage, closed_at } = req.body;
       const dealId = await DealModel.store({ lead_id, title, value, stage, closed_at });
       res.status(201).json({

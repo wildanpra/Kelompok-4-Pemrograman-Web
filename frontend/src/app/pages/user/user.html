@@ -12,7 +12,6 @@
             <th>No</th>
             <th>name</th>
             <th>email</th>
-            <th>password</th>
             <th>role</th>
           </tr>
         </thead>
@@ -21,7 +20,6 @@
             <td>{{ i + 1 }}</td>
             <td>{{ c.name }}</td>
             <td>{{ c.email }}</td>
-            <td>{{ c.password }}</td>
             <td>{{ c.role }}</td>
           </tr>
         </tbody>
@@ -56,11 +54,19 @@
             <div class="col-md-6">
               <label class="form-label">Email</label>
               <input type="email" class="form-control" formControlName="email" placeholder="email@contoh.com" />
+              <div *ngIf="createForm.get('email')?.invalid && createForm.get('email')?.touched"
+                class="text-danger small mt-1">
+                Email wajib diisi dengan format valid
+              </div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label">Password</label>
               <input type="password" class="form-control" formControlName="password" placeholder="••••••••" />
+              <div *ngIf="createForm.get('password')?.invalid && createForm.get('password')?.touched"
+                class="text-danger small mt-1">
+                Password minimal 8 karakter
+              </div>
             </div>
 
             <div class="col-md-6">
@@ -68,6 +74,7 @@
               <select class="form-select" formControlName="role">
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
+                <option value="sales">Sales</option>
               </select>
             </div>
           </div>

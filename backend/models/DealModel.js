@@ -1,37 +1,41 @@
 //file models yang berguna untuk menerjemahkan isi table
 const db = require("../config/database");
 
-//menampilkan seluruh data table customers
-const findAll = async () => {
-  const [rows] = await db.query(
-    `SELECT d.id, d.title, d.value, d.stage, d.closed_at, d.created_at,
+const DEAL_SELECT = `SELECT d.id, d.title, d.value, d.stage, d.closed_at, d.created_at,
             l.id      AS lead_id,
             l.title   AS lead_title,
             l.status  AS lead_status,
+            l.assigned_to AS assigned_to,
             c.id      AS customer_id,
             c.name    AS customer_name,
             c.company AS customer_company
      FROM   deals d
      LEFT JOIN leads     l ON d.lead_id = l.id
-     LEFT JOIN customers c ON l.customer_id = c.id
+     LEFT JOIN customers c ON l.customer_id = c.id`;
+
+//menampilkan seluruh data table deals
+const findAll = async () => {
+  const [rows] = await db.query(
+    `${DEAL_SELECT}
      ORDER BY d.created_at DESC`,
   );
   return rows;
 };
 
-//menampilkan by id dari table customers
+const findByAssignedUser = async (userId) => {
+  const [rows] = await db.query(
+    `${DEAL_SELECT}
+     WHERE l.assigned_to = ?
+     ORDER BY d.created_at DESC`,
+    [userId]
+  );
+  return rows;
+};
+
+//menampilkan by id dari table deals
 const findById = async (id) => {
   const [rows] = await db.query(
-    `SELECT d.id, d.title, d.value, d.stage, d.closed_at, d.created_at,
-            l.id      AS lead_id,
-            l.title   AS lead_title,
-            l.status  AS lead_status,
-            c.id      AS customer_id,
-            c.name    AS customer_name,
-            c.company AS customer_company
-     FROM   deals d
-     LEFT JOIN leads     l ON d.lead_id = l.id
-     LEFT JOIN customers c ON l.customer_id = c.id
+    `${DEAL_SELECT}
      WHERE  d.id = ?`,
     [id]
   );
@@ -67,4 +71,4 @@ const store = async ({ lead_id, title, value, stage, closed_at }) => {
   return insertId;
 };
 
-module.exports = { findAll, findById, createFormLead, updateStageByLeadId, removeByLeadId, store };
+module.exports = { findAll, findByAssignedUser, findById, createFormLead, updateStageByLeadId, removeByLeadId, store };

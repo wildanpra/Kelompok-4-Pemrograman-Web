@@ -12,6 +12,7 @@ import { User } from '../../models/User';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../service/auth_service';
 
 @Component({
   selector: 'app-users',
@@ -36,20 +37,25 @@ export class UserComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private userService: UserService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private authService: AuthService,
     private fb: FormBuilder,
     @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     this.createForm = this.fb.group({
       name: ['', Validators.required],
-      email: [''],
-      password: [''],
-      role: [''],
-      created_at: [1],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      role: ['staff', Validators.required],
     });
   }
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      if (!this.authService.isAdmin()) {
+        this.router.navigate(['/dashboard']);
+        return;
+      }
+
       this.loadUser();
     } else {
       this.isLoading = false;
@@ -76,7 +82,7 @@ export class UserComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   showCreate(): void {
-    this.createForm.reset({ role: 'user' });
+    this.createForm.reset({ role: 'staff' });
     this.errorMsg = '';
     this.successMsg = '';
     this.view = 'create';
